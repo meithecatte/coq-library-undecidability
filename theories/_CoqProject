@@ -249,13 +249,10 @@ FOL/Sets/Models/ZF_conservativity.v
 
 FOL/Utils/FullSyntax.v
 FOL/Utils/FragmentSyntax.v
-
-
-
-
-
-
-
+FOL/Utils/FriedmanTranslation.v
+FOL/Utils/FriedmanTranslationFragment.v
+FOL/Utils/PrenexNormalForm.v
+FOL/Utils/QuantifierPrefix.v
 
 
 
@@ -289,9 +286,6 @@ FOL/Reductions/H10UPC_to_FOL_constructions.v
 FOL/Reductions/H10UPC_to_FOL.v
 FOL/Reductions/H10UPC_to_FOL_minimal.v
 FOL/Reductions/H10UPC_to_FOL_friedman.v
-
-FOL/Utils/FriedmanTranslation.v
-FOL/Utils/FriedmanTranslationFragment.v
 
 FOL/FOL.v
 FOL/FOL_undec.v
