@@ -265,7 +265,6 @@ Proof.
 Qed.
 
 
-
 Fixpoint mm2_steps M k x :=
   match k with
   | 0 => Some x
@@ -301,7 +300,7 @@ Proof.
   by rw mm2_steps_plus' Hi.
 Qed.
 
-Lemma mm2_steps_reaches {M k x y} : mm2_steps M k x = Some y -> clos_refl_trans _ (mm2_step M) x y.
+Lemma mm2_steps_reaches {M k x y} : mm2_steps M k x = Some y -> M // x ↠ y.
 Proof.
   elim: k x. { move=> ? [<-]. by apply: rt_refl. }
   move=> k IH x /=.
@@ -309,7 +308,7 @@ Proof.
   move=> ? /IH. apply: rt_trans. by apply: rt_step.
 Qed.
 
-Lemma mm2_reaches_steps {M x y} : clos_refl_trans _ (mm2_step M) x y -> exists k, mm2_steps M k x = Some y.
+Lemma mm2_reaches_steps {M x y} : M // x ↠ y -> exists k, mm2_steps M k x = Some y.
 Proof.
   move=> /clos_rt_rt1n_iff. elim.
   - move=> >. by exists 0.
@@ -319,3 +318,13 @@ Proof.
     + move=> H. by move: Hxy => /H.
 Qed.
 
+Lemma mm2_steps_none {M k x} : mm2_steps M k x = None -> M // x ↓.
+Proof.
+  elim: k => [| k IHk] //= in x *.
+  case: mm2_sig_step_dec => [[y hy] | h].
+  - move=> /IHk.
+    apply: mm2_steps_terminates_l.
+    by constructor.
+  - move=> _.
+    exact: mm2_stop_terminates.
+Qed.

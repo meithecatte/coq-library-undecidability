@@ -251,8 +251,10 @@ FOL/Utils/FullSyntax.v
 FOL/Utils/FragmentSyntax.v
 FOL/Utils/FriedmanTranslation.v
 FOL/Utils/FriedmanTranslationFragment.v
+FOL/Utils/FriedmanValidity.v
 FOL/Utils/PrenexNormalForm.v
 FOL/Utils/QuantifierPrefix.v
+FOL/Utils/ReductionClass.v
 
 
 
@@ -286,6 +288,9 @@ FOL/Reductions/H10UPC_to_FOL_constructions.v
 FOL/Reductions/H10UPC_to_FOL.v
 FOL/Reductions/H10UPC_to_FOL_minimal.v
 FOL/Reductions/H10UPC_to_FOL_friedman.v
+
+FOL/PrefixVocabulary/BuchiClass.v
+FOL/PrefixVocabulary/SuccCanonical.v
 
 FOL/FOL.v
 FOL/FOL_undec.v

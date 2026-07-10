@@ -7,7 +7,7 @@ Import List.ListNotations.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
-Local Notation vec := Vector.t.
+Local Abbreviation vec := Vector.t.
 
 Section PNFrules.
   Context {Σ_funcs : funcs_signature}.
@@ -218,13 +218,25 @@ Section PrenexNormalForm.
   | nQ_bin {b} op (ϕ1 ϕ2: form b) : noQuant_ind ϕ1 -> noQuant_ind ϕ2 -> noQuant_ind (bin op ϕ1 ϕ2).
 
   Inductive PNF_ind : forall b, form b -> Prop :=
-  | PNF_noQuant {b} ϕ : @noQuant_ind b ϕ -> PNF_ind ϕ
+  | PNF_noQuant {b} (ϕ : form b) : noQuant_ind ϕ -> PNF_ind ϕ
   | PNF_quant {b} op (ϕ: form b) : PNF_ind ϕ -> PNF_ind (quant op ϕ).
+
+  (* A conjunction of prenex formulas - a notion useful in the classification
+     of (un)decidable prefix-vocabulary classes *)
+  Inductive PNF_conj : forall b, form b -> Prop :=
+    | Pconj_one {b} (ϕ : form b) : PNF_ind ϕ -> PNF_conj ϕ
+    | Pconj_conj {b} (ϕ1 ϕ2 : form b) : PNF_conj ϕ1 -> PNF_conj ϕ2 ->
+        PNF_conj (bin Conj ϕ1 ϕ2).
 
   #[local] Hint Constructors noQuant_ind : core.
   #[local] Hint Constructors PNF_ind : core.
+  #[local] Hint Constructors PNF_conj : core.
 
-  Lemma noQuand_ind_inv {ff: falsity_flag} {ϕ} (nQ : noQuant_ind ϕ) :
+  Arguments noQuant_ind {_}.
+  Arguments PNF_ind     {_}.
+  Arguments PNF_conj    {_}.
+
+  Lemma noQuant_ind_inv {ff: falsity_flag} {ϕ} (nQ : noQuant_ind ϕ) :
     match ϕ with
     | bin op φ1 φ2 => noQuant_ind φ1 /\ noQuant_ind φ2 
     | quant _ _ => False
@@ -255,11 +267,11 @@ Section PrenexNormalForm.
     - apply H0.
     - apply H1.
     - apply H2.
-      + now destruct (noQuand_ind_inv nQ).
-      + apply noQuant_ind_rec; try assumption. now destruct (noQuand_ind_inv nQ).
-      + now destruct (noQuand_ind_inv nQ).
-      + apply noQuant_ind_rec; try assumption. now destruct (noQuand_ind_inv nQ).
-    - now destruct (noQuand_ind_inv nQ).
+      + now destruct (noQuant_ind_inv nQ).
+      + apply noQuant_ind_rec; try assumption. now destruct (noQuant_ind_inv nQ).
+      + now destruct (noQuant_ind_inv nQ).
+      + apply noQuant_ind_rec; try assumption. now destruct (noQuant_ind_inv nQ).
+    - now destruct (noQuant_ind_inv nQ).
   Defined.
 
   Fixpoint PNF_ind_rec
@@ -303,7 +315,7 @@ Section PrenexNormalForm.
     - reflexivity.
     - econstructor. constructor.
     - intros H.
-      destruct (noQuand_ind_inv (PNF_ind_inversion H)).
+      destruct (noQuant_ind_inv (PNF_ind_inversion H)).
       apply andb_true_intro. split; now apply noQuant_agree.
     - intros []%andb_prop. constructor. constructor; now apply noQuant_agree.
     - intros H. apply PNF_ind_inversion in H. now apply IHϕ.
@@ -550,4 +562,36 @@ Section PrenexNormalForm.
       destruct op; firstorder.
   Qed.
 
+  Fixpoint unconj {ff : falsity_flag} (phi : form) : list form :=
+    match phi with
+    | bin _ _ _ b Conj phi1 phi2 => unconj phi1 ++ unconj phi2
+    (* XXX: we need to bind phi again or the pattern match won't typecheck *)
+    | phi => [phi]
+    end.
+
+  Lemma PNF_ind_unconj `{ff : falsity_flag} (phi : form) :
+    PNF_ind phi -> Forall PNF_ind (unconj phi).
+  Proof.
+    induction phi as [| | ff op |]; simpl; auto.
+    destruct op; simpl; auto.
+    intros H. apply PNF_ind_inversion in H. simpl in H.
+    apply noQuant_ind_inv in H. simpl in H. destruct H.
+    rewrite Forall_app. auto.
+  Qed.
+
+  Lemma PNF_conj_iff_unconj `{ff : falsity_flag} (phi : form) :
+    PNF_conj phi <-> Forall PNF_ind (unconj phi).
+  Proof.
+    split.
+    - intros H. induction H.
+      + apply PNF_ind_unconj; assumption.
+      + simpl. apply Forall_app. auto.
+    - intros H. induction phi as [| | ff op | op]; auto.
+      destruct op.
+      1: { simpl in H. apply Forall_app in H. destruct H as [H1 H2]. auto. }
+      all: simpl in H; inversion H; subst; auto using PNF_ind_unconj.
+  Qed.
 End PrenexNormalForm.
+
+Arguments noQuant_ind {_} {_} {_}.
+Arguments PNF_ind     {_} {_} {_}.

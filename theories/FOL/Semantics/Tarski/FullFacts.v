@@ -107,6 +107,12 @@ Section Tarski.
       eapply impl_sat.
     Qed.
 
+    Lemma bigconj_sat {ff : falsity_flag} A rho phi :
+      sat rho (bigconj phi A) <-> (forall psi, psi el A -> sat rho psi) /\ sat rho phi.
+    Proof.
+      revert phi; induction A; cbn; firstorder congruence.
+    Qed.
+
     Lemma bounded_eval_t n t sigma tau :
       (forall k, n > k -> sigma k = tau k) -> bounded_t n t -> eval sigma t = eval tau t.
     Proof.

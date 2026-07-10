@@ -224,6 +224,12 @@ Module FullSyntax.
 
   Notation "A ==> phi" := (impl A phi) (right associativity, at level 55) : full_syntax.
 
+  Fixpoint bigconj {Σ_funcs : funcs_signature} {Σ_preds : preds_signature} {ff : falsity_flag} phi (A : list form) :=
+    match A with
+    | [] => phi
+    | psi :: A => bigconj (bin _ _ full_operators _ Conj phi psi) A
+    end.
+
   Definition exist_times {Σ_funcs : funcs_signature} {Σ_preds : preds_signature} {ff : falsity_flag} n (phi : form) := iter (fun psi => ∃ psi) n phi.
   Definition forall_times {Σ_funcs : funcs_signature} {Σ_preds : preds_signature} {ff : falsity_flag} n (phi : form) := iter (fun psi => ∀ psi) n phi.
 
