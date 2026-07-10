@@ -7,7 +7,8 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import Undecidability.Synthetic.Undecidability.
+From Undecidability.Synthetic
+  Require Import Undecidability ReducibilityFacts.
 
 From Undecidability.PCP
   Require Import PCP PCP_undec.
@@ -20,5 +21,12 @@ From Undecidability.StackMachines
 Theorem BSM_undec : undecidable Halt_BSM.
 Proof.
   apply (undecidability_from_reducibility iPCPb_undec).
+  apply iPCPb_to_BSM_HALTING.
+Qed.
+
+Theorem BSM_compl_undec : undecidable (complement Halt_BSM).
+Proof.
+  apply (undecidability_from_reducibility iPCPb_compl_undec).
+  apply reduces_complement.
   apply iPCPb_to_BSM_HALTING.
 Qed.

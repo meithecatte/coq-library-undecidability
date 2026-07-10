@@ -45,7 +45,7 @@ Proof.
   apply (undecidability_from_reducibility complement_SBTM_HALT_undec).
   apply reduces_complement.
   eapply reduces_transitive; last apply MPCP_to_PCP.reduction.
-  eapply reduces_transitive; last apply SR_to_MPCP.reduction. Locate SR.SR.
+  eapply reduces_transitive; last apply SR_to_MPCP.reduction.
   eapply reduces_transitive; last apply SBTM_HALT_to_SR.reduction.
   eapply reduces_reflexive.
 Qed.
@@ -74,6 +74,12 @@ Proof.
 Qed.
 
 Check iPCPb_undec.
+
+Lemma iPCPb_compl_undec : undecidable (complement iPCPb).
+Proof.
+  apply (undecidability_from_reducibility PCPb_compl_undec).
+  exists id. firstorder using PCPb_iff_iPCPb.PCPb_iff_iPCPb.
+Qed.
 
 (* The Post correspondence problem restricted to binary strings is undecidable. *)
 Lemma dPCPb_undec : undecidable dPCPb.

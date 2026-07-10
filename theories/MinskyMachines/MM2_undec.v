@@ -7,7 +7,8 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import Undecidability.Synthetic.Undecidability.
+From Undecidability.Synthetic
+  Require Import Undecidability ReducibilityFacts.
 
 From Undecidability.MinskyMachines
   Require Import MMA MM2 MMA2_undec MMA2_to_MM2.
@@ -23,11 +24,26 @@ Proof.
   apply MMA2_MM2_HALTING.
 Qed.
 
+Lemma MM2_HALTING_compl_undec : undecidable (complement MM2_HALTING).
+Proof.
+  apply (undecidability_from_reducibility MMA2_HALTING_compl_undec).
+  apply reduces_complement.
+  apply MMA2_MM2_HALTING.
+Qed.
+
 Check MM2_HALTING_undec.
+
 
 Lemma MM2_ZERO_HALTING_undec : undecidable MM2_ZERO_HALTING.
 Proof.
   apply (undecidability_from_reducibility MM2_HALTING_undec).
+  exact MM2_HALTING_to_MM2_ZERO_HALTING.reduction.
+Qed.
+
+Lemma MM2_ZERO_HALTING_compl_undec : undecidable (complement MM2_ZERO_HALTING).
+Proof.
+  apply (undecidability_from_reducibility MM2_HALTING_compl_undec).
+  apply reduces_complement.
   exact MM2_HALTING_to_MM2_ZERO_HALTING.reduction.
 Qed.
 

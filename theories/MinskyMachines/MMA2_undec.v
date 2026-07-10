@@ -7,7 +7,8 @@
 (*        Mozilla Public License Version 2.0, MPL-2.0         *)
 (**************************************************************)
 
-Require Import Undecidability.Synthetic.Undecidability.
+From Undecidability.Synthetic
+  Require Import Undecidability ReducibilityFacts.
 
 From Undecidability.FRACTRAN 
   Require Import FRACTRAN FRACTRAN_undec.
@@ -22,6 +23,13 @@ Proof.
 Qed.
 
 Check MMA2_HALTING_undec.
+
+Lemma MMA2_HALTING_compl_undec : undecidable (complement MMA2_HALTING).
+Proof.
+  apply (undecidability_from_reducibility FRACTRAN_REG_compl_undec).
+  apply reduces_complement.
+  apply FRACTRAN_REG_MMA2_HALTING.
+Qed.
 
 Lemma MMA2_HALTS_ON_ZERO_undec : undecidable MMA2_HALTS_ON_ZERO.
 Proof.
