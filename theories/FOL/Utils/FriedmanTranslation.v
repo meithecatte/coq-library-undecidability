@@ -237,10 +237,6 @@ End Signature.
 
 
 Section Arithmetic.
-
-  Existing Instance PA_preds_signature.
-  Existing Instance PA_funcs_signature.
-
   Notation "I ⊫= Gamma" := (forall rho psi, In psi Gamma -> sat I rho psi) (at level 20).
 
   Lemma nat_sat_Fr_Q P :
@@ -256,4 +252,3 @@ Section Arithmetic.
   Qed.
 
 End Arithmetic.
-
