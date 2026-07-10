@@ -91,34 +91,6 @@ Section Reduction.
 (* given two-counter machine *)
 Context (mm : list mm2_instr).
 
-Lemma instr_at_in_combine {i x}:
-  mm2_instr_at x i mm -> In (i, x) (combine (seq 1 (length mm)) mm).
-Proof.
-  move=> [mml] [mmr] [-> <-].
-  suff: forall n, In (n + length mml, x)
-    (combine (seq n (length (mml ++ x :: mmr))) (mml ++ x :: mmr)) by apply.
-  elim: mml => >. { rw /= Nat.add_0_r. by left. }
-  move=> IH n /=. right. rw -Nat.add_succ_comm. by apply: IH.
-Qed.
-
-#[local] Arguments in_split {A x l}.
-
-Lemma inv_instr_at_in_combine {i x}:
-  In (i, x) (combine (seq 1 (length mm)) mm) -> mm2_instr_at x i mm.
-Proof.
-  move=> /in_split [l] [r] Hlr.
-  exists (map snd l), (map snd r). move: Hlr.
-  suff: forall mm n, combine (seq n (length mm)) mm = l ++ (i, x) :: r ->
-    mm = map snd l ++ x :: map snd r /\ n + length (map snd l) = i by apply.
-  elim: l.
-  { move=> [|mm2i mm'] n /=; [done|].
-    move=> [-> ->] <-. split; [|lia].
-    congr cons. elim: mm' (S i). { done. }
-    by move=> > + ? /= => <-. }
-  move=> [i' mm2i'] l IH [|mm2i mm'] n /=; [done|].
-  move=> [-> ->] /IH [-> <-]. by split; [|lia].
-Qed.
-
 Local Arguments List.app : simpl never.
 Local Arguments Nat.sub : simpl never.
 Local Arguments repeat : simpl never.
@@ -219,7 +191,7 @@ Proof.
   rw /srs. case /in_app_iff.
   { firstorder (by eauto using srs_spec with nocore). }
   case /in_app_iff.
-  { move=> /in_flat_map [[? i]] [/inv_instr_at_in_combine].
+  { move=> /in_flat_map [[? i]] [/mm2_inv_instr_at_in_combine].
     move: i => []> /=; intuition (by eauto using srs_spec, or with nocore). }
   case /in_app_iff.
   { move=> /in_flat_map [?] [/in_seq] [_ ?].
@@ -242,7 +214,7 @@ Proof.
   - move=> [] > <- *.
     1-2: apply /In_appl; rw /=; by tauto.
     1-6: apply /In_appr /In_appl /in_flat_map; eexists;
-      (constructor; [apply: instr_at_in_combine; by eassumption | by move=> /=; tauto ]).
+      (constructor; [apply: mm2_instr_at_in_combine; by eassumption | by move=> /=; tauto ]).
     1: apply /In_appr /In_appr /In_appr /In_appr /In_appl /in_map_iff; eexists;
       (constructor; [by reflexivity | apply /in_seq; by lia ]).
     1-6: do 5 (apply /In_appr); move=> /=; subst; by tauto.

@@ -56,6 +56,34 @@ Proof.
   by move=> -> [].
 Qed.
 
+Lemma mm2_instr_at_in_combine {i x} mm:
+  mm2_instr_at x i mm -> In (i, x) (combine (seq 1 (length mm)) mm).
+Proof.
+  move=> [mml] [mmr] [-> <-].
+  suff: forall n, In (n + length mml, x)
+    (combine (seq n (length (mml ++ x :: mmr))) (mml ++ x :: mmr)) by apply.
+  elim: mml => >. { rw /= Nat.add_0_r. by left. }
+  move=> IH n /=. right. rw -Nat.add_succ_comm. by apply: IH.
+Qed.
+
+#[local] Arguments in_split {A x l}.
+
+Lemma mm2_inv_instr_at_in_combine {i x} mm:
+  In (i, x) (combine (seq 1 (length mm)) mm) -> mm2_instr_at x i mm.
+Proof.
+  move=> /in_split [l] [r] Hlr.
+  exists (map snd l), (map snd r). move: Hlr.
+  suff: forall mm n, combine (seq n (length mm)) mm = l ++ (i, x) :: r ->
+    mm = map snd l ++ x :: map snd r /\ n + length (map snd l) = i by apply.
+  elim: l.
+  { move=> [|mm2i mm'] n /=; [done|].
+    move=> [-> ->] <-. split; [|lia].
+    congr cons. elim: mm' (S i). { done. }
+    by move=> > + ? /= => <-. }
+  move=> [i' mm2i'] l IH [|mm2i mm'] n /=; [done|].
+  move=> [-> ->] /IH [-> <-]. by split; [|lia].
+Qed.
+
 Lemma mm2_stop_index_iff {P: list mm2_instr} {x} : mm2_stop P x <-> fst x = 0 \/ length P < fst x.
 Proof.
   split.
