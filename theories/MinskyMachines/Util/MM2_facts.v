@@ -263,3 +263,59 @@ Proof.
   move=> ?. apply: (mm2_clos_trans_not_terminates (fun y => y = x)); last done.
   move=> y ->. by exists x.
 Qed.
+
+
+
+Fixpoint mm2_steps M k x :=
+  match k with
+  | 0 => Some x
+  | S k =>
+    match mm2_sig_step_dec M x with
+    | inleft (exist _ y _) => mm2_steps M k y
+    | inright _ => None
+    end
+  end.
+
+Lemma mm2_steps_plus' {M k x k'} :
+  mm2_steps M (k + k') x = obind (mm2_steps M k') (mm2_steps M k x).
+Proof.
+  elim: k x. { done. }
+  move=> k IH x /=.
+  case: (mm2_sig_step_dec M x) => [[y]|]; last done.
+  move=> _. by apply: IH.
+Qed.
+
+Lemma mm2_steps_k_monotone {M k x} k' : mm2_steps M k x = None -> k <= k' -> mm2_steps M k' x = None.
+Proof.
+  move=> Hk ?. have ->: k' = k + (k' - k) by lia.
+  by rw mm2_steps_plus' Hk.
+Qed.
+
+Lemma mm2_steps_sub {M i j x y z} :
+  mm2_steps M i x = Some y ->
+  mm2_steps M j x = Some z ->
+  i <= j ->
+  mm2_steps M (j-i) y = Some z.
+Proof.
+  move=> Hi + ?. rw [in mm2_steps M j x](ltac:(lia) : j = i + (j - i)).
+  by rw mm2_steps_plus' Hi.
+Qed.
+
+Lemma mm2_steps_reaches {M k x y} : mm2_steps M k x = Some y -> clos_refl_trans _ (mm2_step M) x y.
+Proof.
+  elim: k x. { move=> ? [<-]. by apply: rt_refl. }
+  move=> k IH x /=.
+  case: (mm2_sig_step_dec M x) => [[z]|]; last done.
+  move=> ? /IH. apply: rt_trans. by apply: rt_step.
+Qed.
+
+Lemma mm2_reaches_steps {M x y} : clos_refl_trans _ (mm2_step M) x y -> exists k, mm2_steps M k x = Some y.
+Proof.
+  move=> /clos_rt_rt1n_iff. elim.
+  - move=> >. by exists 0.
+  - move=> {}x {}y z Hxy _ [k Hk]. exists (S k) => /=.
+    case: (mm2_sig_step_dec M x) => [[y' Hxy']|].
+    + by move: Hxy Hxy' => /mm2_step_det /[apply] <-.
+    + move=> H. by move: Hxy => /H.
+Qed.
+

@@ -129,10 +129,11 @@ Import Facts.
 Section Construction.
 Variable M : list mm2_instr.
 
-#[local] Abbreviation bounded := (MM2.mm2_bounded M).
-#[local] Abbreviation step := (MM2.mm2_step M).
+#[local] Abbreviation bounded := (mm2_bounded M).
+#[local] Abbreviation step := (mm2_step M).
 #[local] Abbreviation reaches := (clos_refl_trans _ step).
-#[local] Abbreviation trace := (MM2.mm2_trace M).
+#[local] Abbreviation trace := (mm2_trace M).
+#[local] Abbreviation steps := (mm2_steps M).
 
 #[local] Arguments Nat.min !n !m /.
 
@@ -141,59 +142,6 @@ Proof. by do ? decide equality. Qed.
 
 Lemma bounded_monotone {k k' x} : k <= k' -> bounded k x -> bounded k' x.
 Proof. move=> ? [L [? ?]]. exists L. split; [lia|done]. Qed.
-
-Fixpoint steps k x :=
-  match k with
-  | 0 => Some x
-  | S k =>
-    match mm2_sig_step_dec M x with
-    | inleft (exist _ y _) => steps k y
-    | inright _ => None
-    end
-  end.
-
-Lemma steps_plus' {k x k'} :
-  steps (k + k') x = obind (steps k') (steps k x).
-Proof.
-  elim: k x. { done. }
-  move=> k IH x /=.
-  case: (mm2_sig_step_dec M x) => [[y]|]; last done.
-  move=> _. by apply: IH.
-Qed.
-
-Lemma steps_k_monotone {k x} k' : steps k x = None -> k <= k' -> steps k' x = None.
-Proof.
-  move=> Hk ?. have ->: k' = k + (k' - k) by lia.
-  by rw steps_plus' Hk.
-Qed.
-
-Lemma steps_sub {i j x y z} :
-  steps i x = Some y ->
-  steps j x = Some z ->
-  i <= j ->
-  steps (j-i) y = Some z.
-Proof.
-  move=> Hi + ?. rw [in steps j x](ltac:(lia) : j = i + (j - i)).
-  by rw steps_plus' Hi.
-Qed.
-
-Lemma steps_reaches {k x y} : steps k x = Some y -> reaches x y.
-Proof.
-  elim: k x. { move=> ? [<-]. by apply: rt_refl. }
-  move=> k IH x /=.
-  case: (mm2_sig_step_dec M x) => [[z]|]; last done.
-  move=> ? /IH. apply: rt_trans. by apply: rt_step.
-Qed.
-
-Lemma reaches_steps {x y} : reaches x y -> exists k, steps k x = Some y.
-Proof.
-  move=> /clos_rt_rt1n_iff. elim.
-  - move=> >. by exists 0.
-  - move=> {}x {}y z Hxy _ [k Hk]. exists (S k) => /=.
-    case: (mm2_sig_step_dec M x) => [[y' Hxy']|].
-    + by move: Hxy Hxy' => /mm2_step_det /[apply] <-.
-    + move=> H. by move: Hxy => /H.
-Qed.
 
 Lemma step_values_bound x y : steps 1 x = Some y ->
   value1 y + value2 y <= 1 + value1 x + value2 x /\
@@ -214,7 +162,7 @@ Lemma steps_values_bound k x y : steps k x = Some y ->
 Proof.
   elim: k x. { move=> ? [<-]. lia. }
   move=> k IH x.
-  rw (steps_plus' (k := 1) (k' := k)).
+  rw (mm2_steps_plus' (k := 1) (k' := k)).
   case Hxz: (steps 1 x) => [z|]; last done.
   move=> /IH.
   move: Hxz => /step_values_bound. lia.
@@ -234,7 +182,7 @@ Qed.
 Lemma In_None_pathE k x :
   In None (path k x) -> steps k x = None.
 Proof.
-  move=> /In_pathE [k' [?]] /(steps_k_monotone k). apply. lia.
+  move=> /In_pathE [k' [?]] /(mm2_steps_k_monotone k). apply. lia.
 Qed.
 
 Lemma In_pathI k x K : k < K -> In (steps k x) (path K x).
@@ -262,7 +210,7 @@ Proof.
     move=> k' IH. have ->: S k' = k' + 1 by lia.
     by rw ?seq_app IH map_app. }
   rw map_map. apply: map_ext => - ?.
-  by rw steps_plus' Hxy.
+  by rw mm2_steps_plus' Hxy.
 Qed.
 
 Lemma path_S_last {k x} : path (S k) x = (path k x) ++ [steps k x].
@@ -275,33 +223,33 @@ Proof.
   move: (k mod (S K)) => k' Hx. elim: (k / S K).
   - congr steps. lia.
   - move=> n IH. have ->: S K * S n + k' = S K + (S K * n + k') by lia.
-    by rw steps_plus' Hx.
+    by rw mm2_steps_plus' Hx.
 Qed.
 
 Lemma path_loopE K x : In (steps K x) (path K x) -> 
   forall k, In (steps k x) (path K x).
 Proof.
   elim: K x; first done.
-  move=> K IH x. rw (steps_plus' (k := 1) (k' := K)).
+  move=> K IH x. rw (mm2_steps_plus' (k := 1) (k' := K)).
   case Hxz: (steps 1 x) => [z|].
   - move=> H. rw (path_S z Hxz) /= in H. case: H.
     + move=> Hzx k. have /steps_loop_mod -> : steps (S K) x = Some x.
-      { by rw (steps_plus' (k := 1) (k' := K)) Hxz. }
+      { by rw (mm2_steps_plus' (k := 1) (k' := K)) Hxz. }
       by apply /In_pathI /(Nat.mod_upper_bound k (S K)).
     + rw (path_S z Hxz).
       move=> /IH {}IH [|k]; first by left.
-      rw (steps_plus' (k := 1) (k' := k)) Hxz. right. by apply: IH.
+      rw (mm2_steps_plus' (k := 1) (k' := k)) Hxz. right. by apply: IH.
   - move=> /in_map_iff [k] [Hk] /in_seq HK.
     move=> k'. have [|Hkk'] : k' < k \/ k <= k' by lia.
     + move=> ?. apply: In_pathI. lia.
-    + move: (Hk) => /(steps_k_monotone k') /(_ Hkk') ->.
+    + move: (Hk) => /(mm2_steps_k_monotone k') /(_ Hkk') ->.
       rw /= in Hk. rw -Hk. apply: In_pathI. lia.
 Qed.
 
 Lemma path_loopE' K x : In (steps K x) (path K x) -> 
   forall y, reaches x y -> In (Some y) (path K x).
 Proof.
-  move=> /path_loopE H y /reaches_steps [k] H'. move: (H k).
+  move=> /path_loopE H y /mm2_reaches_steps [k] H'. move: (H k).
   by congr In.
 Qed.
 
@@ -340,11 +288,11 @@ Proof.
   move=> HK.
   exists (map (fun oy => if oy is Some y then y else x) (path K x)).
   split. { by rw length_map path_length. }
-  move=> y /reaches_steps [k]. have [?|?] : k < K \/ K <= k by lia.
+  move=> y /mm2_reaches_steps [k]. have [?|?] : k < K \/ K <= k by lia.
   - move=> Hk. apply /in_map_iff. exists (Some y).
     split; first done.
     rw -Hk. by apply: In_pathI.
-  - by move: HK => /(steps_k_monotone k) /(_ ltac:(lia)) ->.
+  - by move: HK => /(mm2_steps_k_monotone k) /(_ ltac:(lia)) ->.
 Qed.
 
 Lemma NoDup_not_bounded {K x y} : 
@@ -354,8 +302,8 @@ Proof.
   apply: (pigeonhole (path (K+1) x) (map Some L)).
   - move=> [z|] /in_map_iff [k] [Hk] /in_seq ?.
     { apply /in_map_iff. exists z. split; first done.
-      apply: HL. by apply: (steps_reaches Hk). }
-    by move: Hk Hxy => /(steps_k_monotone K) /(_ ltac:(lia)) ->.
+      apply: HL. by apply: (mm2_steps_reaches Hk). }
+    by move: Hk Hxy => /(mm2_steps_k_monotone K) /(_ ltac:(lia)) ->.
   - rw length_map path_length. lia.
   - done.
 Qed.
@@ -478,7 +426,7 @@ Proof.
   move: x Hx Hz => [p [a b]] Hx Hz.
   have Hp : 0 < p <= l.
   { move: Hz. have -> : K = 1 + (K - 1) by lia.
-    rw steps_plus' /=.
+    rw mm2_steps_plus' /=.
     case: (mm2_sig_step_dec M (p, (a, b))) => [[?]|]; last done.
     by move=> [?] [/mm2_instr_at_bounds] /=. }
   move: Hx Hz.
@@ -526,14 +474,14 @@ Proof.
     split. { exists k. split; [lia|done]. }
     suff : not (value1 z < n /\ value2 z < n) by lia.
     move=> H'. apply: H. apply /in_map_iff. exists z. split; first done.
-    have := steps_sub Hk Hxy ltac:(lia).
+    have := mm2_steps_sub Hk Hxy ltac:(lia).
     have -> /=: l * n * n + 1 - k = S (Nat.pred (l * n * n + 1 - k)) by lia.
     case: (mm2_sig_step_dec M z) => [[?]|]; [|done].
     move: z {Hk} H' => [? [? ?]] /= ? [?] /= [/mm2_instr_at_bounds ? _] _.
     apply /in_prod; [|apply /in_prod]; apply /in_seq; lia.
   - move=> [/in_map_iff] H. exfalso.
     move: H => [k] [+ /in_seq ?].
-    move=> /(steps_k_monotone (l*n*n+1)) /(_ ltac:(lia)).
+    move=> /(mm2_steps_k_monotone (l*n*n+1)) /(_ ltac:(lia)).
     by rw Hxy.
 Qed.
 
@@ -550,7 +498,7 @@ Proof.
   { move=> ????. congr (Some (_, (_, _))); lia. }
   move=> i IH [|n] a b; first by lia.
   move=> /(iffRL (Nat.succ_le_mono _ _)) /IH {}IH.
-  rw /= steps_plus'.
+  rw /= mm2_steps_plus'.
   have := IH (a2+a) (b2+b). congr eq; first last.
   { congr (Some (_, (_, _))); lia. }
   have -> : steps (i * k) (p, (a1 + ca * (a2 + a + n * a1), b1 + cb * (b2 + b + n * b1))) =
@@ -585,7 +533,7 @@ Proof.
   move=> {}H /(_ (p, (a, b))) [L [? HL]].
   have : incl (map (fun i => steps (i * k) (p, (a, b))) (seq 0 (K+1))) (map Some L).
   { move=> z /in_map_iff [i] [<- /in_seq ?]. rw H; first by lia.
-    apply: in_map. apply: HL. apply: (steps_reaches (k := (i*k))). rw H; [lia|done]. }
+    apply: in_map. apply: HL. apply: (mm2_steps_reaches (k := (i*k))). rw H; [lia|done]. }
   move=> /pigeonhole. apply.
   { rw ?length_map length_seq. lia. }
   under map_ext_in.
@@ -625,12 +573,12 @@ Proof.
     (list_prod (seq 1 l) (seq 0 l)).
   { move=> [p c] /in_map_iff [[[p' [a' b']]|]]; first last.
     { move=> [_ /In_pathE].
-      move=> [?] [?] /(steps_k_monotone (l * l + 1)) /(_ ltac:(lia)).
+      move=> [?] [?] /(mm2_steps_k_monotone (l * l + 1)) /(_ ltac:(lia)).
       by rw Hxy. }
     move=> [+ H].
     have ? : 0 < p' <= l. 
     { move: H => /in_map_iff [k'] [Hk' /in_seq ?].
-      have := steps_sub Hk' Hxy ltac:(lia).
+      have := mm2_steps_sub Hk' Hxy ltac:(lia).
       have -> /=: l * l + 1 - k' = S (l * l + 1 - k' - 1) by lia.
       case: (mm2_sig_step_dec M (p', (a', b'))) => [[?]|]; [|done].
       by move=> [?] [/mm2_instr_at_bounds]. }
@@ -645,9 +593,9 @@ Proof.
   rw /path map_map. move=> /(dup_seq prod_nat_nat_eq_dec) [[i j]].
   move=> [+ ?].
   case Hi: (steps i x) => [[p [a1 b1]]|]; first last.
-  { move: Hi => /(steps_k_monotone (l*l+1)) /(_ ltac:(lia)). by rw Hxy. }
+  { move: Hi => /(mm2_steps_k_monotone (l*l+1)) /(_ ltac:(lia)). by rw Hxy. }
   case Hj: (steps j x) => [[p' [a2 b2]]|]; first last.
-  { move: Hj => /(steps_k_monotone (l*l+1)) /(_ ltac:(lia)). by rw Hxy. }
+  { move: Hj => /(mm2_steps_k_monotone (l*l+1)) /(_ ltac:(lia)). by rw Hxy. }
   clear H'x.
   have ? : not (p = p' /\ a1 = a2 /\ b1 = b2).
   { move=> [? [? ?]]. subst p' a2 b2.
@@ -662,13 +610,13 @@ Proof.
     (* x ->>i (p, (a1, b1)) ->>(j-i) (p, (a2, b2)); a1 >= j-i or b1 >= j-i *)
     have ? : j-i <= a1.
     { move: Hi => /steps_values_bound /=. lia. }
-    move: Hi Hj => /steps_sub H /H{H} /(_ ltac:(lia)).
+    move: Hi Hj => /mm2_steps_sub H /H{H} /(_ ltac:(lia)).
     move /not_uniformly_boundedI. apply; lia.
   - move=> [? ?]. subst p' a2.
     have ? : b1 <> b2 by lia.
     have ? : j-i <= b1.
     { move: Hi => /steps_values_bound /=. lia. }
-    move: Hi Hj => /steps_sub H /H{H} /(_ ltac:(lia)).
+    move: Hi Hj => /mm2_steps_sub H /H{H} /(_ ltac:(lia)).
     move /not_uniformly_boundedI. apply; lia.
 Qed.
 
@@ -687,11 +635,11 @@ Proof.
     (seq 1 l).
   { move=> p /in_map_iff [[[p' [a' b']]|]]; first last.
     { move=> [_ /In_pathE].
-      move=> [?] [?] /(steps_k_monotone (l + 1)) /(_ ltac:(lia)).
+      move=> [?] [?] /(mm2_steps_k_monotone (l + 1)) /(_ ltac:(lia)).
       by rw Hxy. }
     move=> [->] H. apply /in_seq.
     move: H => /in_map_iff [k'] [Hk' /in_seq ?].
-    have := steps_sub Hk' Hxy ltac:(lia).
+    have := mm2_steps_sub Hk' Hxy ltac:(lia).
     have -> /=: l + 1 - k' = S (l + 1 - k' - 1) by lia.
     case: (mm2_sig_step_dec M (p, (a', b'))) => [[?]|]; [|done].
     move=> [?] [/mm2_instr_at_bounds] /=. lia. }
@@ -699,9 +647,9 @@ Proof.
   rw /path map_map. move=> /(dup_seq Nat.eq_dec) [[i j]].
   move=> [+ ?].
   case Hi: (steps i x) => [[p [a1 b1]]|]; first last.
-  { move: Hi => /(steps_k_monotone (l+1)) /(_ ltac:(lia)). by rw Hxy. }
+  { move: Hi => /(mm2_steps_k_monotone (l+1)) /(_ ltac:(lia)). by rw Hxy. }
   case Hj: (steps j x) => [[p' [a2 b2]]|]; first last.
-  { move: Hj => /(steps_k_monotone (l+1)) /(_ ltac:(lia)). by rw Hxy. }
+  { move: Hj => /(mm2_steps_k_monotone (l+1)) /(_ ltac:(lia)). by rw Hxy. }
   move=> ?. subst p'.
   have ? : a1 <> a2 \/ b1 <> b2.
   { suff : not (a1 = a2 /\ b1 = b2) by lia. move=> [??]. subst a2 b2.
@@ -712,7 +660,7 @@ Proof.
     rw Hi Hj ?count_occ_app /=. case: (option_mm2_state_eq_dec _ _); [lia|done]. }
   have ?: j - i <= a1 /\ j - i <= b1.
   { move: Hi => /steps_values_bound /=. lia. }
-  have := steps_sub Hi Hj ltac:(lia).
+  have := mm2_steps_sub Hi Hj ltac:(lia).
   move=> /not_uniformly_boundedI. apply; lia.
 Qed.
 
