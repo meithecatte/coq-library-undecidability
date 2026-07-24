@@ -5,7 +5,7 @@ Import Vector.VectorNotations.
 From Stdlib Require Import List.
 
 Definition ax_induction (phi : form) :=
-  phi[zero..] → (∀ phi → phi[σ $0 .: S >> var]) → ∀ phi.
+  phi.[zero..] → (∀ phi → phi.[σ $0 .: S >> var]) → ∀ phi.
 
 (* Full axiomatisation of the theory of PA *)
 Inductive PA : form -> Prop :=

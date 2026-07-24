@@ -122,20 +122,20 @@ Proof.
 Qed.
 
 Lemma trans_trans' b (phi : form b) A sigma tau :
-  (map (subst_form tau) A) ⊢I ((dnQ (trans phi[sigma])) → trans phi[sigma]).
+  (map (subst_form tau) A) ⊢I ((dnQ (trans phi.[sigma])) → trans phi.[sigma]).
 Proof.
   revert A sigma tau. induction phi; cbn; intros; try destruct P; try destruct b0; try destruct q.
   - cbn. eapply II. eapply app1. eapply II. eapply Ctx. eauto.
   - eapply II. eapply II. eapply app2. eapply II.
     eapply app1. eapply Ctx. eauto.
   - eapply II. eapply app1. eapply II. eapply Ctx. eauto.
-  - eapply II. eapply II. apply IE with (dnQ (trans phi2[sigma])). specialize (IHphi2 A sigma tau). apply (Weak IHphi2). auto.
+  - eapply II. eapply II. apply IE with (dnQ (trans phi2.[sigma])). specialize (IHphi2 A sigma tau). apply (Weak IHphi2). auto.
     eapply II. eapply app3. eapply II. eapply app2. eapply app1. eapply Ctx. eauto.
-  - apply II, AllI. apply IE with (dnQ (trans phi[up sigma])).
+  - apply II, AllI. apply IE with (dnQ (trans phi.[up sigma])).
     + apply IHphi.
     + apply II. eapply IE. { apply Ctx. right. left. cbn. reflexivity. }
       apply II. eapply IE. { apply Ctx. right. left. reflexivity. }
-      replace (trans phi[up sigma]) with (((trans (phi[up sigma]))[up ↑])[($0)..]) at 4.
+      replace (trans phi.[up sigma]) with (((trans (phi.[up sigma])).[up ↑]).[($0)..]) at 4.
       * apply AllE. apply Ctx. now left.
       * setoid_rewrite trans_subst. cbn. repeat setoid_rewrite subst_comp.
         apply subst_ext. intros n. unfold funcomp. cbn.

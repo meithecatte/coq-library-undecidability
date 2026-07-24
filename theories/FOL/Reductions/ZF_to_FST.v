@@ -45,7 +45,7 @@ Proof.
 Qed.
 
 Lemma embed_subst' (sigma : nat -> term') phi :
-  embed' phi[sigma] = (embed' phi)[sigma >> embed_t'].
+  embed' phi.[sigma] = (embed' phi).[sigma >> embed_t'].
 Proof.
   induction phi in sigma |- *; cbn; trivial.
   - f_equal. erewrite !Vector.map_map, Vector.map_ext. reflexivity. apply embed_subst_t'.

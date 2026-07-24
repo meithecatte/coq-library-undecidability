@@ -198,7 +198,7 @@ Section FlagsTransport.
       - intros H d. apply IHphi. 2: apply H. intros Hd. apply Hdefault.
         eapply sat_comp in Hd. eapply sat_ext in Hd. 1: apply Hd.
         now intros [|x].
-      - intros H d. apply IHphi with (default [↑]). 2: apply H. intros Hd. apply Hdefault.
+      - intros H d. apply IHphi with (default .[↑]). 2: apply H. intros Hd. apply Hdefault.
         eapply sat_comp in Hd. eapply sat_ext in Hd. 1: apply Hd.
         now intros [|x].
     Qed.

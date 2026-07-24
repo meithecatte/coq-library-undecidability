@@ -70,11 +70,11 @@ Fixpoint rm_const_tm (t : term) : form' :=
   | var n => $0 ≡' var (S n)
   | func eset _ => is_eset $0
   | func pair v => let v' := Vector.map rm_const_tm v in
-                  ∃ (Vector.hd v')[sshift 1]
-                  ∧ ∃ (Vector.hd (Vector.tl v'))[sshift 2]
+                  ∃ (Vector.hd v').[sshift 1]
+                  ∧ ∃ (Vector.hd (Vector.tl v')).[sshift 2]
                   ∧ is_pair $1 $0 $2
-  | func union v => ∃ (Vector.hd (Vector.map rm_const_tm v))[sshift 1] ∧ is_union $0 $1
-  | func power v => ∃ (Vector.hd (Vector.map rm_const_tm v))[sshift 1] ∧ is_power $0 $1
+  | func union v => ∃ (Vector.hd (Vector.map rm_const_tm v)).[sshift 1] ∧ is_union $0 $1
+  | func power v => ∃ (Vector.hd (Vector.map rm_const_tm v)).[sshift 1] ∧ is_power $0 $1
   | func _ _ => is_om $0
   end.
 
@@ -84,9 +84,9 @@ Fixpoint rm_const_fm {ff : falsity_flag} (phi : form) : form' :=
   | bin bop phi psi => bin sig_empty _ bop (rm_const_fm phi) (rm_const_fm psi)
   | quant qop phi => quant qop (rm_const_fm phi)
   | atom elem v => let v' := Vector.map rm_const_tm v in
-                  ∃ (Vector.hd v') ∧ ∃ (Vector.hd (Vector.tl v'))[sshift 1] ∧ $1 ∈'$0
+                  ∃ (Vector.hd v') ∧ ∃ (Vector.hd (Vector.tl v')).[sshift 1] ∧ $1 ∈'$0
   | atom equal v => let v' := Vector.map rm_const_tm v in
-                  ∃ (Vector.hd v') ∧ ∃ (Vector.hd (Vector.tl v'))[sshift 1] ∧ $1 ≡' $0
+                  ∃ (Vector.hd v') ∧ ∃ (Vector.hd (Vector.tl v')).[sshift 1] ∧ $1 ≡' $0
   end.
 
 Definition binsolvable S :=
@@ -191,7 +191,7 @@ Section Model.
   Qed.
 
   Lemma embed_subst (sigma : nat -> term') (phi : form') :
-    embed phi[sigma] = (embed phi)[sigma >> embed_t].
+    embed phi.[sigma] = (embed phi).[sigma >> embed_t].
   Proof.
     induction phi in sigma |- *; cbn; trivial.
     - f_equal. erewrite !Vector.map_map, Vector.map_ext. reflexivity. apply embed_subst_t.
@@ -201,19 +201,19 @@ Section Model.
   Qed.
 
   Lemma embed_sshift n (phi : form') :
-    embed phi[sshift n] = (embed phi)[sshift n].
+    embed phi.[sshift n] = (embed phi).[sshift n].
   Proof.
     rewrite embed_subst. apply subst_ext. intros []; unfold funcomp; now rewrite <- !sshift_spec.
   Qed.
 
   Lemma sat_sshift1 (rho : nat -> V) x y (phi : form) :
-    (y .: x .: rho) ⊨ phi[sshift 1] <-> (y .: rho) ⊨ phi.
+    (y .: x .: rho) ⊨ phi.[sshift 1] <-> (y .: rho) ⊨ phi.
   Proof.
     erewrite sat_comp, sat_ext. reflexivity. now intros [].
   Qed.
 
   Lemma sat_sshift2 (rho : nat -> V) x y z (phi : form) :
-    (z .: y .: x .: rho) ⊨ phi[sshift 2] <-> (z .: rho) ⊨ phi.
+    (z .: y .: x .: rho) ⊨ phi.[sshift 2] <-> (z .: rho) ⊨ phi.
   Proof.
     erewrite sat_comp, sat_ext. reflexivity. now intros [].
   Qed.
@@ -408,19 +408,19 @@ End Model.
 (* ** Substitution lemmas *)
 
 Lemma up_sshift1 (phi : form') sigma :
-  phi[sshift 1][up (up sigma)] = phi[up sigma][sshift 1].
+  phi.[sshift 1].[up (up sigma)] = phi.[up sigma].[sshift 1].
 Proof.
   unfold sshift. cbn. now asimpl.
 Qed.
 
 Lemma up_sshift2 (phi : form') sigma :
-  phi[sshift 2][up (up (up sigma))] = phi[up sigma][sshift 2].
+  phi.[sshift 2].[up (up (up sigma))] = phi.[up sigma].[sshift 2].
 Proof.
   unfold sshift. cbn. now asimpl.
 Qed.
 
 Lemma rm_const_tm_subst (sigma : nat -> term') (t : term) :
-  (rm_const_tm t)[up sigma] = rm_const_tm t`[sigma >> embed_t].
+  (rm_const_tm t).[up sigma] = rm_const_tm t`[sigma >> embed_t].
 Proof.
   induction t; cbn; try destruct F.
   - unfold funcomp. now destruct (sigma x) as [k|[]].
@@ -432,7 +432,7 @@ Proof.
 Qed.
 
 Lemma rm_const_fm_subst (sigma : nat -> term') (phi : form) :
-  (rm_const_fm phi)[sigma] = rm_const_fm phi[sigma >> embed_t].
+  (rm_const_fm phi).[sigma] = rm_const_fm phi.[sigma >> embed_t].
 Proof.
   induction phi in sigma |- *; cbn; trivial; try destruct P.
   - rewrite (vec_inv2 t). cbn. now rewrite up_sshift1, !rm_const_tm_subst.
@@ -443,19 +443,19 @@ Proof.
 Qed.
 
 Lemma rm_const_fm_shift (phi : form) :
-  (rm_const_fm phi)[↑] = rm_const_fm phi[↑].
+  (rm_const_fm phi).[↑] = rm_const_fm phi.[↑].
 Proof.
   rewrite rm_const_fm_subst. erewrite subst_ext. reflexivity. now intros [].
 Qed.
 
 Lemma eq_sshift1 (phi : form') t :
-  phi[sshift 1][up t..] = phi.
+  phi.[sshift 1].[up t..] = phi.
 Proof.
   unfold sshift. now asimpl.
 Qed.
 
 Lemma eq_sshift2 (phi : form') t :
-  phi[sshift 2][up (up t..)] = phi[sshift 1].
+  phi.[sshift 2].[up (up t..)] = phi.[sshift 1].
 Proof.
   unfold sshift. now asimpl.
 Qed.
@@ -465,7 +465,7 @@ Qed.
 (* ** Deductions in minimal axiomatisation *)
 
 Lemma eq_subst x y sigma :
-  (x ≡' y)[sigma] = (x`[sigma] ≡' y`[sigma]).
+  (x ≡' y).[sigma] = (x`[sigma] ≡' y`[sigma]).
 Proof.
   unfold eq'. cbn. subsimpl. reflexivity.
 Qed.
@@ -565,14 +565,14 @@ Proof.
 Qed.
 
 Lemma all_equiv { p : peirce } (phi psi : form') A :
-  (forall t, A ⊢ phi[t..] <-> A ⊢ psi[t..]) -> (A ⊢ ∀ phi) <-> (A ⊢ ∀ psi).
+  (forall t, A ⊢ phi.[t..] <-> A ⊢ psi.[t..]) -> (A ⊢ ∀ phi) <-> (A ⊢ ∀ psi).
 Proof.
   intros H1. split; intros H2; apply AllI.
   all: edestruct (nameless_equiv_all A) as [x ->]; apply H1; auto.
 Qed.
 
 Lemma ex_equiv { p : peirce } (phi psi : form') A :
-  (forall B t, A <<= B -> B ⊢ phi[t..] <-> B ⊢ psi[t..]) -> (A ⊢ ∃ phi) <-> (A ⊢ ∃ psi).
+  (forall B t, A <<= B -> B ⊢ phi.[t..] <-> B ⊢ psi.[t..]) -> (A ⊢ ∃ phi) <-> (A ⊢ ∃ psi).
 Proof.
   intros H1. split; intros H2.
   - apply (ExE H2). edestruct (nameless_equiv_ex A) as [x ->]. apply ExI with x. apply H1; auto.
@@ -580,7 +580,7 @@ Proof.
 Qed.
 
 Lemma minZF_Leibniz { p : peirce } A (phi : form') x y :
-  binZF <<= A -> A ⊢ x ≡' y -> A ⊢ phi[x..] <-> A ⊢ phi[y..].
+  binZF <<= A -> A ⊢ x ≡' y -> A ⊢ phi.[x..] <-> A ⊢ phi.[y..].
 Proof.
   revert A. induction phi using form_ind_subst; cbn; intros A HA HXY; try tauto.
   - destruct P0; rewrite (vec_inv2 t); cbn; split.
@@ -615,7 +615,7 @@ Qed.
 (* ** Verification of translated axioms *)
 
 Lemma prv_ex_eq { p : peirce } A x phi :
-  binZF <<= A -> A ⊢ phi[x..] <-> A ⊢ ∃ $0 ≡' x`[↑] ∧ phi.
+  binZF <<= A -> A ⊢ phi.[x..] <-> A ⊢ ∃ $0 ≡' x`[↑] ∧ phi.
 Proof.
   intros HA. split; intros H.
   - apply (ExI x). unfold eq'. cbn. subsimpl. apply CI; trivial. now apply minZF_refl.
@@ -623,7 +623,7 @@ Proof.
 Qed.
 
 Lemma use_ex_eq { p : peirce } A x phi psi :
-  binZF <<= A -> A ⊢ phi[x..] → psi <-> A ⊢ (∃ $0 ≡' x`[↑] ∧ phi) → psi.
+  binZF <<= A -> A ⊢ phi.[x..] → psi <-> A ⊢ (∃ $0 ≡' x`[↑] ∧ phi) → psi.
 Proof.
   intros H. apply impl_equiv; try tauto. intros B HB. apply prv_ex_eq. now rewrite H.
 Qed.
@@ -795,19 +795,19 @@ Proof.
 Qed.
 
 Lemma inductive_subst t sigma :
-  (inductive t)[sigma] = inductive t`[sigma].
+  (inductive t).[sigma] = inductive t`[sigma].
 Proof.
   cbn. subsimpl. reflexivity.
 Qed.
 
 Lemma is_inductive_subst t sigma :
-  (is_inductive t)[sigma] = is_inductive t`[sigma].
+  (is_inductive t).[sigma] = is_inductive t`[sigma].
 Proof.
   cbn. subsimpl. reflexivity.
 Qed.
 
 Lemma is_om_subst t sigma :
-  (is_om t)[sigma] = is_om t`[sigma].
+  (is_om t).[sigma] = is_om t`[sigma].
 Proof.
   cbn. subsimpl. reflexivity.
 Qed.
@@ -818,8 +818,8 @@ Local Arguments is_inductive : simpl never.
 Lemma is_eset_sub { p : peirce } A x y :
   binZF <<= A -> A ⊢ is_eset x -> A ⊢ sub' x y.
 Proof.
-  intros HA HE. prv_all' z. apply II, Exp, IE with (($0 ∈' x`[↑])[z..]).
-  - change ((z ∈' x :: A) ⊢ (¬ $0 ∈' x`[↑])[z..]). apply AllE, (Weak HE). auto.
+  intros HA HE. prv_all' z. apply II, Exp, IE with (($0 ∈' x`[↑]).[z..]).
+  - change ((z ∈' x :: A) ⊢ (¬ $0 ∈' x`[↑]).[z..]). apply AllE, (Weak HE). auto.
   - cbn. subsimpl. auto.
 Qed.
 
@@ -876,7 +876,7 @@ Proof.
               eapply minZF_elem; auto 9. 2: apply (Weak H2); auto. apply minZF_refl. auto 9.
            ** apply DI2. apply DE'. rewrite ?eq_subst. cbn. subsimpl.
               apply IE with (z ∈' s). eapply CE1 with (z ≡' x ∨ z ≡' x → z ∈' s). 
-              replace (z ∈' s ↔ z ≡' x ∨ z ≡' x) with (($0 ∈' s`[↑] ↔ $0 ≡' x`[↑] ∨ $0 ≡' x`[↑])[z..]).
+              replace (z ∈' s ↔ z ≡' x ∨ z ≡' x) with (($0 ∈' s`[↑] ↔ $0 ≡' x`[↑] ∨ $0 ≡' x`[↑]).[z..]).
               2: cbn; rewrite ?eq_subst; cbn; now subsimpl. apply AllE. auto 7. eapply minZF_elem; auto 9.
               2: apply (Weak H2); auto. apply minZF_refl. auto 9.
     + apply (ExI o). cbn. subsimpl. rewrite !is_om_subst. cbn. apply CI; [eapply CE1 | eapply CE2]; auto.
@@ -950,7 +950,7 @@ Section Deduction.
   Qed.
 
   Lemma rm_const_tm_sub { p : peirce } A t (x y : term') :
-    binZF <<= A -> A ⊢ (rm_const_tm t)[x..] -> A ⊢ (rm_const_tm t)[y..] -> A ⊢ sub' x y.
+    binZF <<= A -> A ⊢ (rm_const_tm t).[x..] -> A ⊢ (rm_const_tm t).[y..] -> A ⊢ sub' x y.
   Proof.
     intros HA. induction t in A, HA, x, y |- *; try destruct F; cbn -[is_inductive sub'].
     - intros H1 H2. prv_all' z. apply II. eapply minZF_elem; auto; try apply minZF_refl; auto.
@@ -964,8 +964,8 @@ Section Deduction.
       eapply Weak in H5. use_exists' H5 e. 2: auto. clear H5. assert1 H. apply CE in H as [H5 H6].
       
       (* making the goal a bit more readable, could be automated *)
-      pose (B := ((rm_const_tm (Vector.hd v))[b..]
-           ∧ (∃ (rm_const_tm (Vector.hd (Vector.tl v)))[sshift 2][up (up x..)][up b..]
+      pose (B := ((rm_const_tm (Vector.hd v)).[b..]
+           ∧ (∃ (rm_const_tm (Vector.hd (Vector.tl v))).[sshift 2].[up (up x..)].[up b..]
                 ∧ (∀ $0 ∈' x`[↑]`[↑] ↔ $0 ≡' b`[↑]`[↑] ∨ $0 ≡' ↑ 0)) :: a ∈' x :: A)).
       fold B in H1, H2, H3, H4, H5, H6. fold B. rewrite !eq_sshift2, !eq_sshift1 in *.
 
@@ -1004,7 +1004,7 @@ Section Deduction.
   Qed.
 
   Lemma rm_const_tm_equiv { p : peirce } A t (x y : term') :
-    binZF <<= A -> A ⊢ (rm_const_tm t)[x..] -> A ⊢ y ≡' x <-> A ⊢ (rm_const_tm t)[y..].
+    binZF <<= A -> A ⊢ (rm_const_tm t).[x..] -> A ⊢ y ≡' x <-> A ⊢ (rm_const_tm t).[y..].
   Proof.
     intros HA Hx. split; intros H.
     - eapply minZF_Leibniz; eauto.
@@ -1012,7 +1012,7 @@ Section Deduction.
   Qed.
 
   Lemma rm_const_tm_swap { p : peirce } A t s x a :
-    binZF <<= A -> A ⊢ (rm_const_tm t)[x..] -> A ⊢ (rm_const_tm s)[a.:x..] <-> A ⊢ (rm_const_tm s`[t..])[a..].
+    binZF <<= A -> A ⊢ (rm_const_tm t).[x..] -> A ⊢ (rm_const_tm s).[a.:x..] <-> A ⊢ (rm_const_tm s`[t..]).[a..].
   Proof.
     induction s in A, a, x |- *; cbn; try destruct F; cbn; intros HA Hx; try tauto.
     - destruct x0; cbn; try tauto. now apply rm_const_tm_equiv.
@@ -1030,7 +1030,7 @@ Section Deduction.
   Qed.
 
   Lemma rm_const_fm_swap { p : peirce } A phi t x :
-    binZF <<= A -> A ⊢ (rm_const_tm t)[x..] -> A ⊢ (rm_const_fm phi)[x..] <-> A ⊢ rm_const_fm phi[t..].
+    binZF <<= A -> A ⊢ (rm_const_tm t).[x..] -> A ⊢ (rm_const_fm phi).[x..] <-> A ⊢ rm_const_fm phi.[t..].
   Proof.
     revert A. induction phi using form_ind_subst; cbn; intros A HA Hx.
     all: try destruct P0; try destruct b0; try destruct q; try tauto.
@@ -1050,10 +1050,10 @@ Section Deduction.
       + apply IHphi1. now rewrite HA. now apply (Weak Hx).
       + apply IHphi2. now rewrite HA. now apply (Weak Hx).
     - apply all_equiv. intros [n|[]]. destruct x as [m|[]].
-      assert (A ⊢ (rm_const_fm phi[$(S n)..])[$m..] <-> A ⊢ (rm_const_fm phi[$(S n)..][t..])) by now apply H, (Weak Hx).
+      assert (A ⊢ (rm_const_fm phi.[$(S n)..]).[$m..] <-> A ⊢ (rm_const_fm phi.[$(S n)..].[t..])) by now apply H, (Weak Hx).
       erewrite !rm_const_fm_subst. asimpl. asimpl in H0. erewrite rm_const_fm_subst in H0. asimpl in H0. apply H0.
     - apply ex_equiv. intros B s HB. destruct s as [n|[]], x as [m|[]].
-      assert (B ⊢ (rm_const_fm phi[$(S n)..])[$m..] <-> B ⊢ (rm_const_fm phi[$(S n)..][t..])).
+      assert (B ⊢ (rm_const_fm phi.[$(S n)..]).[$m..] <-> B ⊢ (rm_const_fm phi.[$(S n)..].[t..])).
       { eapply H, (Weak Hx); trivial. now rewrite HA. }
       erewrite !rm_const_fm_subst. asimpl. asimpl in H0. erewrite rm_const_fm_subst in H0. asimpl in H0. apply H0.
   Qed.
@@ -1090,7 +1090,7 @@ Section Deduction.
       edestruct (nameless_equiv_ex ([rm_const_fm p | p ∈ A0] ++ binZF)) as [x ->]. specialize (H0 A0 eq_refl).
       apply (ExI x). apply <- rm_const_fm_swap; auto. apply (Weak H0). auto.
     - apply (ExE (H0 A0 eq_refl)). erewrite map_app, ZF_subst', rm_const_shift_subst, rm_const_fm_shift.
-      apply (H2 (phi::[p[↑] | p ∈ A0])). cbn. now rewrite map_app, ZF_subst.
+      apply (H2 (phi::[p.[↑] | p ∈ A0])). cbn. now rewrite map_app, ZF_subst.
     - apply Exp. eauto.
     - apply in_app_iff in H as [H|H].
       + apply Ctx. apply in_app_iff. left. now apply in_map.

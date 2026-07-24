@@ -434,15 +434,15 @@ Section provability.
 
     Ltac var_eq := cbn; f_equal; lia.
     Ltac var_cbn := repeat (unfold up,scons,funcomp; cbn).
-    Ltac doAllE s t := match goal with [ |- ?A ⊢I ?P] => assert (P = t[s..]) as ->; [idtac|eapply AllE] end.
+    Ltac doAllE s t := match goal with [ |- ?A ⊢I ?P] => assert (P = t.[s..]) as ->; [idtac|eapply AllE] end.
     Ltac doAllI n := apply AllI; let H := fresh "H" in 
        match goal with [ |- map (subst_form ↑) ?A ⊢I ?phi ] => edestruct (@nameless_equiv_all _ _ _ intu A phi) as [n H]; rewrite H; clear H end.
 
 
 
     (* Helper for working with nested forall quantifiers. *)
-    Lemma emplace_forall_subst (n:nat) (i:form) sigma : (emplace_forall n i)[sigma] = 
-          emplace_forall n (i[it up n sigma]).
+    Lemma emplace_forall_subst (n:nat) (i:form) sigma : (emplace_forall n i).[sigma] = 
+          emplace_forall n (i.[it up n sigma]).
     Proof.
     induction n as [|n IH] in sigma|-*.
     - easy.
@@ -455,11 +455,11 @@ Section provability.
                                          | S k => specialize_n n (fun l => (f (S l))) k end end.
 
     Lemma emplace_forall_elim (n:nat) (i:form) (pos:nat->nat) A : 
-        A ⊢I emplace_forall n i -> A ⊢I (i[specialize_n n pos]).
+        A ⊢I emplace_forall n i -> A ⊢I (i.[specialize_n n pos]).
     Proof.
     intros Hpr. induction n as [|n IH] in i,pos,Hpr|-*.
     - cbn. now rewrite subst_id.
-    - cbn in Hpr. enough (i[up (specialize_n n (fun l=> (pos(S l))))][$(pos 0)..] = i[specialize_n (S n) pos]) as <-.
+    - cbn in Hpr. enough (i.[up (specialize_n n (fun l=> (pos(S l))))].[$(pos 0)..] = i.[specialize_n (S n) pos]) as <-.
       + apply AllE. specialize (IH (∀ i) (fun l => (pos (S l)))). apply IH.
         unfold emplace_forall. rewrite <- it_shift. cbn. apply Hpr.
       + rewrite subst_comp. apply subst_ext. intros [|k].
@@ -672,7 +672,7 @@ Section provability.
     let rec f n k := match n with 0 => apply Hpr | S ?nn => eapply IE; [f nn (S k)|apply Ctx, HA; rep k] end in f 11 0.
     Qed.
 
-    Lemma erel_i_subst (a b c d t:nat) s ss : (forall n,s n = $(ss n)) -> (ss (S t)) = S(ss t) -> (erel_i a b c d t → wFalse t)[s] = erel_i (ss a) (ss b) (ss c) (ss d) (ss t) → wFalse (ss t).
+    Lemma erel_i_subst (a b c d t:nat) s ss : (forall n,s n = $(ss n)) -> (ss (S t)) = S(ss t) -> (erel_i a b c d t → wFalse t).[s] = erel_i (ss a) (ss b) (ss c) (ss d) (ss t) → wFalse (ss t).
     Proof.
     intros H Hs. cbn. unfold erel_i,P,N,P',funcomp. rewrite ! H. do 20 f_equal. all: cbn; rewrite Hs; easy.
     Qed.
@@ -687,7 +687,7 @@ Section provability.
 
     Lemma specialize_list (H f:form) (l:list nat) (n:nat) : 
        length l = n
-    -> (H[subst_list l >> var]:: nil) ⊢I f
+    -> (H.[subst_list l >> var]:: nil) ⊢I f
     -> (emplace_forall n H::nil) ⊢I f.
     Proof.
     induction l as [|lx lr IH] in n,H|-*.
@@ -696,7 +696,7 @@ Section provability.
       cbn in IH. rewrite emplace_forall_shift in IH.
       eapply IH, IE.
       + apply Weak with nil. 2:easy. apply II, Hpr.
-      + assert (H[up (subst_list lr >> var)][$lx..] = H[subst_list (lx :: lr) >> var]) as <-.
+      + assert (H.[up (subst_list lr >> var)].[$lx..] = H.[subst_list (lx :: lr) >> var]) as <-.
         * rewrite subst_comp. apply subst_ext. now intros [|n].
         * apply AllE, Ctx. now left.
     Qed.

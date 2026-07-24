@@ -58,13 +58,13 @@ Definition ax_om2 :=
   ∀ inductive $0 → ω ⊆ $0.
 
 Definition ax_sep phi :=
-  ∀ ∃ ∀ $0 ∈ $1 ↔ $0 ∈ $2 ∧ phi[$0.: Nat.add 3 >> var].
+  ∀ ∃ ∀ $0 ∈ $1 ↔ $0 ∈ $2 ∧ phi.[$0.: Nat.add 3 >> var].
 
 Definition fun_rel phi :=
-  ∀ ∀ ∀ phi[$2 .: $1 .: Nat.add 3 >> var] → phi[$2 .: $0 .: Nat.add 3 >> var] → $1 ≡ $0.
+  ∀ ∀ ∀ phi.[$2 .: $1 .: Nat.add 3 >> var] → phi.[$2 .: $0 .: Nat.add 3 >> var] → $1 ≡ $0.
 
 Definition ax_rep phi :=
-  fun_rel phi → ∀ ∃ ∀ $0 ∈ $1 ↔ ∃ $0 ∈ $3 ∧ phi[$0 .: $1 .: Nat.add 4 >> var].
+  fun_rel phi → ∀ ∃ ∀ $0 ∈ $1 ↔ ∃ $0 ∈ $3 ∧ phi.[$0 .: $1 .: Nat.add 4 >> var].
 
 (* Hereditarily finite set theory *)
 

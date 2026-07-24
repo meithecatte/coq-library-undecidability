@@ -135,8 +135,21 @@ Section Reduction.
   Abbreviation arg1 v := (Vector.hd v).
   Abbreviation arg2 v := (Vector.hd (Vector.tl v)).
 
-  Print Notation "_ [ _ ]".
+  Lemma F_closed : closed F.
+  Proof.
+    have bounded_Q k i t : bounded_t k t -> bounded k (Q i t).
+      by rw /Q; case (_ && _) => h; solve_bounds.
+    have bounded_enc_instr i inst : bounded 3 (enc_instr (i,inst)).
+      by case: inst => [||j|j] /=; solve_bounds; apply: bounded_Q; solve_bounds.
+  Admitted.
+
+  Hint Constructors matches_qpat : core.
   Lemma F_qpat : GPrefixClass ([gprefix ∃ ∧ ∀∃∀]) F.
+  Proof.
+    split; first exact: F_closed.
+    split; first admit.
+    rw /=; auto 6.
+  Admitted.
 
   Import MM2Notations.
   Section NatModel.

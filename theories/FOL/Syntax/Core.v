@@ -178,7 +178,7 @@ Open Scope subst_scope.
 
 Notation "$ x" := (var x) (at level 1, format "$ '/' x") : subst_scope.
 Notation "t `[ sigma ]" := (subst_term sigma t) (at level 1, left associativity, format "t '/' `[ sigma ]") : subst_scope.
-Notation "phi [ sigma ]" := (subst_form sigma phi) (at level 1, left associativity, format "phi '/' [ sigma ]") : subst_scope.
+Notation "phi .[ sigma ]" := (subst_form sigma phi) (at level 1, left associativity, format "phi '/' .[ sigma ]") : subst_scope.
 Notation "s .: sigma" := (scons s sigma) (at level 70, right associativity) : subst_scope.
 Notation "f >> g" := (funcomp g f) (at level 50) : subst_scope.
 Notation "s '..'" := (scons s var) (at level 1, format "s ..") : subst_scope.

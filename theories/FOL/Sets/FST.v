@@ -45,8 +45,8 @@ Definition FST :=
   ax_ext :: ax_eset :: ax_adj :: nil.
 
 Definition ax_ind phi :=
-  phi[∅..]
-   → (∀ ∀ phi[$0 .: (fun n => $(2+n))] → phi[$1 .: (fun n => $(2+n))] → phi[$0 ::: $1 .: (fun n => $(2+n))])
+  phi.[∅..]
+   → (∀ ∀ phi.[$0 .: (fun n => $(2+n))] → phi.[$1 .: (fun n => $(2+n))] → phi.[$0 ::: $1 .: (fun n => $(2+n))])
    → ∀ phi.
 
 Inductive FSTI : form -> Prop :=

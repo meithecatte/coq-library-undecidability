@@ -86,7 +86,7 @@ Section Kripke.
     Qed.
 
     Lemma ksat_comp {ff : falsity_flag} u rho xi phi :
-      rho ⊩(u,M) phi[xi] <-> (xi >> eval rho (I := @k_interp _ M)) ⊩(u,M) phi.
+      rho ⊩(u,M) phi.[xi] <-> (xi >> eval rho (I := @k_interp _ M)) ⊩(u,M) phi.
     Proof.
       induction phi as [ | b P v | | ] in rho, xi, u |-*; comp.
       - tauto.

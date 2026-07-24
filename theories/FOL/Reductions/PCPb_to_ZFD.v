@@ -31,7 +31,7 @@ Close Scope ZFsem.
 Lemma ZF_eset x :
   ZFeq' ⊢ ¬ (x ∈ ∅).
 Proof.
-  change (ZFeq' ⊢ (¬ ($0 ∈ ∅))[x..]).
+  change (ZFeq' ⊢ (¬ ($0 ∈ ∅)).[x..]).
   apply AllE. apply Ctx. firstorder.
 Qed.
 
@@ -53,14 +53,14 @@ Proof.
   induction n; cbn.
   - eapply CE1. apply Ctx. firstorder.
   - eapply IE; try apply IHn.
-    change (ZFeq' ⊢ ($0 ∈ ω → σ ($0) ∈ ω)[(tnumeral n)..]).
+    change (ZFeq' ⊢ ($0 ∈ ω → σ ($0) ∈ ω).[(tnumeral n)..]).
     apply AllE. eapply CE2. apply Ctx. firstorder.
 Qed.
 
 Lemma ZF_refl' T x :
   ZFeq' <<= T -> T ⊢ x ≡ x.
 Proof.
-  intros H. change (T ⊢ ($0 ≡ $0)[x..]).
+  intros H. change (T ⊢ ($0 ≡ $0).[x..]).
   apply AllE. apply Ctx. firstorder.
 Qed.
 
@@ -481,7 +481,7 @@ Proof.
 Qed.
 
 Lemma is_rep_subst s t x y sigma :
-  (is_rep (comb_rel s t) x y)[sigma] = is_rep (comb_rel s t) x`[sigma] y`[sigma].
+  (is_rep (comb_rel s t) x y).[sigma] = is_rep (comb_rel s t) x`[sigma] y`[sigma].
 Proof.
   unfold is_rep. cbn -[comb_rel]. subsimpl. repeat f_equal.
   - unfold comb_rel. cbn. rewrite !prep_string_subst. reflexivity.
@@ -489,7 +489,7 @@ Proof.
 Qed.
 
 Lemma combinations_subst B x y sigma :
-  (combinations B x y)[sigma] = combinations B x`[sigma] y`[sigma].
+  (combinations B x y).[sigma] = combinations B x`[sigma] y`[sigma].
 Proof.
   induction B as [|[s t] B IH] in sigma, x, y |- *.
   - cbn. reflexivity.

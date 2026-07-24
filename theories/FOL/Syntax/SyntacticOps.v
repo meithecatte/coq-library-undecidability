@@ -36,7 +36,7 @@ Section FalsitySubstitution.
       falsity => default
     | atom P v => atom P v
     | bin b f1 f2 => (bin b (subst_falsity default f1) (subst_falsity default f2))
-    | quant q f => (quant q (subst_falsity (default[↑]) f))
+    | quant q f => (quant q (subst_falsity (default.[↑]) f))
     end.
   Notation "phi [ psi /⊥]" := (@subst_falsity _ _ psi phi) (at level 1, left associativity) : subst_scope.
 
@@ -67,7 +67,7 @@ Section FalsitySubstitution.
   Qed.
 
   Lemma subst_falsity_comm {ff1 ff2} (phi : @form _ _ _ ff1) (psi : @form _ _ _ ff2) rho :
-    phi[psi/⊥][rho] = phi[rho][psi[rho]/⊥].
+    phi[psi/⊥].[rho] = phi.[rho][psi.[rho]/⊥].
   Proof.
     induction phi in rho,psi|-*.
     - easy.
@@ -141,7 +141,7 @@ Section FunctionSubstitution.
     now destruct x.
   Qed.
 
-  Lemma func_subst_comp {ff:falsity_flag} s rho phi : func_subst_respects s -> phi[s/func][rho>>var] = phi[rho>>var][s/func].
+  Lemma func_subst_comp {ff:falsity_flag} s rho phi : func_subst_respects s -> phi[s/func].[rho>>var] = phi.[rho>>var][s/func].
   Proof.
   intros Hresp.
   induction phi in s,rho,Hresp|-*.
@@ -178,7 +178,7 @@ Section PredicateSubstitution.
 
   Definition atom_subst_respects {Σ_preds2} {ff:falsity_flag} 
     (s : forall (P : Σ_preds1), Vector.t (@term Σ_funcs1) (ar_preds P) -> (@form Σ_funcs1 Σ_preds2 _ _))
-    := forall f v sigma, (s f v)[sigma] = s f (map (subst_term (sigma)) v).
+    := forall f v sigma, (s f v).[sigma] = s f (map (subst_term (sigma)) v).
 
   Lemma atom_subst_id {ff:falsity_flag} phi : phi[ atom /atom] = phi.
   Proof.
@@ -190,7 +190,7 @@ Section PredicateSubstitution.
   Qed.
 
   Lemma atom_subst_comp {Σ_preds2} {ff:falsity_flag} s rho phi : 
-    @atom_subst_respects Σ_preds2 _ s -> phi[s/atom][rho] = phi[rho][s/atom].
+    @atom_subst_respects Σ_preds2 _ s -> phi[s/atom].[rho] = phi.[rho][s/atom].
   Proof.
   intros Hresp.
   induction phi in s,rho,Hresp|-*.
@@ -219,7 +219,7 @@ Section BottomToPred.
     := phi[(fun P v => @atom _ Σ_preds_bot _ _ (inr P) v) /atom]
           [( @atom _ Σ_preds_bot _ _ (inl tt) (Vector.nil _)) /⊥].
 
-  Lemma falsity_to_pred_subst {ff:falsity_flag} phi rho : falsity_to_pred (phi[rho]) = (falsity_to_pred phi)[rho].
+  Lemma falsity_to_pred_subst {ff:falsity_flag} phi rho : falsity_to_pred (phi.[rho]) = (falsity_to_pred phi).[rho].
   Proof.
     unfold falsity_to_pred.
     rewrite subst_falsity_comm.

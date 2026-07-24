@@ -180,7 +180,7 @@ Section Subst.
   Qed.
 
   Lemma subst_ext {ff : falsity_flag} (phi : form) sigma tau :
-    (forall n, sigma n = tau n) -> phi[sigma] = phi[tau].
+    (forall n, sigma n = tau n) -> phi.[sigma] = phi.[tau].
   Proof.
     induction phi in sigma, tau |- *; cbn; intros H.
     - reflexivity.
@@ -190,7 +190,7 @@ Section Subst.
   Qed.
 
   Lemma subst_id {ff : falsity_flag} (phi : form) sigma :
-    (forall n, sigma n = var n) -> phi[sigma] = phi.
+    (forall n, sigma n = var n) -> phi.[sigma] = phi.
   Proof.
     induction phi in sigma |- *; cbn; intros H.
     - reflexivity.
@@ -200,13 +200,13 @@ Section Subst.
   Qed.
 
   Lemma subst_var {ff : falsity_flag} (phi : form) :
-    phi[var] = phi.
+    phi.[var] = phi.
   Proof.
     now apply subst_id.
   Qed.
 
   Lemma subst_comp {ff : falsity_flag} (phi : form) sigma tau :
-    phi[sigma][tau] = phi[sigma >> subst_term tau].
+    phi.[sigma].[tau] = phi.[sigma >> subst_term tau].
   Proof.
     induction phi in sigma, tau |- *; cbn.
     - reflexivity.
@@ -216,19 +216,19 @@ Section Subst.
   Qed.
 
   Lemma subst_shift {ff : falsity_flag} (phi : form) s :
-    phi[↑][s..] = phi.
+    phi.[↑].[s..] = phi.
   Proof.
     rewrite subst_comp. apply subst_id. now intros [|].
   Qed.
 
   Lemma up_form {ff : falsity_flag} xi psi :
-    psi[↑][up xi] = psi[xi][↑].
+    psi.[↑].[up xi] = psi.[xi].[↑].
   Proof.
     rewrite !subst_comp. apply subst_ext. reflexivity.
   Qed.
 
   Lemma up_decompose {ff : falsity_flag} sigma phi :
-    phi[up (S >> sigma)][(sigma 0)..] = phi[sigma].
+    phi.[up (S >> sigma)].[(sigma 0)..] = phi.[sigma].
   Proof.
     rewrite subst_comp. apply subst_ext.
     intros [].

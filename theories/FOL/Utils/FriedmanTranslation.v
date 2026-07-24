@@ -105,17 +105,17 @@ Section Signature.
   Qed.
       
   Lemma form_up_var0_invar {ff} (phi : @form _ _ _ ff) :
-    phi[up ↑][$0..] = phi.
+    phi.[up ↑].[$0..] = phi.
   Proof.
     asimpl. reflexivity.
   Qed.
   
   Lemma dn_forall {F} Gamma phi :
-    F[↑] = F -> Gamma ⊢M dn F (∀ phi) → ∀ dn F phi.
+    F.[↑] = F -> Gamma ⊢M dn F (∀ phi) → ∀ dn F phi.
   Proof.
     intros HF.
     apply II. constructor. apply II. cbn.
-    change ((∀ phi[up ↑])) with ((∀ phi)[↑]).
+    change ((∀ phi.[up ↑])) with ((∀ phi).[↑]).
     rewrite !HF.
     eapply IE with (phi:= _ → _). { apply Ctx; auto. right. left. easy. }
     apply II. eapply IE with (phi:= phi). { apply Ctx; auto. right. left. easy. }

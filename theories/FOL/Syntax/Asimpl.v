@@ -81,19 +81,19 @@ Section Asimpl.
   Proof. apply subst_term_ext. Qed.
 
   (* Interaction on forms *)
-  Lemma asimpl_f_falsity s : falsity[s] = falsity.
+  Lemma asimpl_f_falsity s : falsity.[s] = falsity.
   Proof. easy. Qed.
-  Lemma asimpl_f_atom P v s : (atom P v)[s] = atom P (Vector.map (subst_term s) v).
+  Lemma asimpl_f_atom P v s : (atom P v).[s] = atom P (Vector.map (subst_term s) v).
   Proof. easy. Qed.
-  Lemma asimpl_f_bin b f1 f2 s : (bin b f1 f2)[s] = bin b (f1[s]) (f2[s]).
+  Lemma asimpl_f_bin b f1 f2 s : (bin b f1 f2).[s] = bin b (f1.[s]) (f2.[s]).
   Proof. easy. Qed.
-  Lemma asimpl_f_quant q f s : (quant q f)[s] = quant q (f[$0 .: (s >> subst_term (S >> var))]).
+  Lemma asimpl_f_quant q f s : (quant q f).[s] = quant q (f.[$0 .: (s >> subst_term (S >> var))]).
   Proof. easy. Qed.
-  Lemma asimpl_f_id t : t[var] = t.
+  Lemma asimpl_f_id t : t.[var] = t.
   Proof. now apply subst_id. Qed.
-  Lemma asimpl_f_comp t s1 s2 : t[s1][s2] = t[s1 >> subst_term s2].
+  Lemma asimpl_f_comp t s1 s2 : t.[s1].[s2] = t.[s1 >> subst_term s2].
   Proof. apply subst_comp. Qed.
-  Lemma asimpl_f_ext t s1 s2 : s1 ≡ s2 -> t[s1] = t[s2].
+  Lemma asimpl_f_ext t s1 s2 : s1 ≡ s2 -> t.[s1] = t.[s2].
   Proof. apply subst_ext. Qed.
 
   (* Interaction on forms and terms both uses *)
@@ -161,7 +161,7 @@ End Asimpl.
            Bonus asimpl_pre to replace foo[var] with foo (using subst_id) *)
 #[global]
 Ltac asimpl_match t := (match goal with 
-    |- context[?phi[?sigma]] => progress (print_goal; erewrite (@asimpl_f_ext _ _ _ _ phi sigma); [|t]; asimpl_pre)
+    |- context[?phi.[?sigma]] => progress (print_goal; erewrite (@asimpl_f_ext _ _ _ _ phi sigma); [|t]; asimpl_pre)
   | |- context[?tt`[?sigma]] => progress (print_goal; erewrite (@asimpl_t_ext _ tt sigma); [|t]; asimpl_pre) end).
 
 
@@ -170,7 +170,7 @@ Ltac asimpl_match t := (match goal with
    This leads to an endless loop *)
 #[global]
 Ltac asimpl_match_goal t H := (match goal with 
-    H' : context[?phi[?sigma]] |- _ => progress (constr_eq_strict H' H; erewrite (@asimpl_f_ext _ _ _ _ phi sigma) in H; [|t]; try asimpl_pre_in H)
+    H' : context[?phi.[?sigma]] |- _ => progress (constr_eq_strict H' H; erewrite (@asimpl_f_ext _ _ _ _ phi sigma) in H; [|t]; try asimpl_pre_in H)
   | H' : context[?tt`[?sigma]] |- _ => progress (constr_eq_strict H' H; erewrite (@asimpl_t_ext _ tt sigma) in H; [|t]; try asimpl_pre_in H) end).
 
 (* Step 3: Simplify the substitution, using the normalizing complete sigma calculus rewrite rules 
@@ -234,21 +234,21 @@ Section Test.
 
   #[local]
   Lemma asimpl_test_1 phi t sigma :
-    phi[up sigma][t..] = phi[t.:sigma].
+    phi.[up sigma].[t..] = phi.[t.:sigma].
   Proof. 
     asimpl. reflexivity.
   Qed.
 
   #[local]
   Lemma asimpl_test_1_ctx phi t sigma :
-    phi[up sigma][t..] = phi[t.:sigma] -> (phi[t.:sigma] = phi[t.:sigma]).
+    phi.[up sigma].[t..] = phi.[t.:sigma] -> (phi.[t.:sigma] = phi.[t.:sigma]).
   Proof.
     intros H. asimpl in H. apply H.
   Qed.
 
   #[local]
   Lemma asimpl_test_2 phi :
-    phi[up ↑][up (up ↑)][up $0..] = phi[$0 .: S >> ↑].
+    phi.[up ↑].[up (up ↑)].[up $0..] = phi.[$0 .: S >> ↑].
   Proof.
     asimpl. reflexivity.
   Qed.
@@ -262,42 +262,42 @@ Section Test.
 
   #[local]
   Lemma asimpl_test_4 phi t sigma :
-    phi[up ↑][t.:sigma] = phi[t.:S>>sigma].
+    phi.[up ↑].[t.:sigma] = phi.[t.:S>>sigma].
   Proof.
     asimpl. reflexivity.
   Qed.
 
   #[local]
   Lemma asimpl_test_5 phi :
-    phi[$0.:↑] = phi.
+    phi.[$0.:↑] = phi.
   Proof.
     asimpl. reflexivity.
   Qed.
 
   #[local]
   Lemma asimpl_test_6 phi x :
-    phi[up ↑][up $x..] = phi.
+    phi.[up ↑].[up $x..] = phi.
   Proof.
     asimpl. reflexivity.
   Qed.
 
   #[local]
   Lemma asimpl_test_7 phi :
-    phi[up ↑][$0..] = phi.
+    phi.[up ↑].[$0..] = phi.
   Proof.
     asimpl. reflexivity.
   Qed.
 
   #[local]
   Lemma asimpl_test_8 phi x :
-    phi[up ↑][up $x..][up ↑][up $x..] = phi[up ↑][up $x..][up ↑][up $x..][up ↑][up $x..].
+    phi.[up ↑].[up $x..].[up ↑].[up $x..] = phi.[up ↑].[up $x..].[up ↑].[up $x..].[up ↑].[up $x..].
   Proof.
     asimpl. reflexivity.
   Qed.
 
   #[local]
   Lemma asimpl_test_9 phi :
-    phi[up ↑][up (up ↑)][up $0..][up ↑][up (up ↑)][up $0..] = phi[$0 .: S >> S >> ↑].
+    phi.[up ↑].[up (up ↑)].[up $0..].[up ↑].[up (up ↑)].[up $0..] = phi.[$0 .: S >> S >> ↑].
   Proof.
     asimpl. reflexivity.
   Qed.

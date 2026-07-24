@@ -66,7 +66,7 @@ Proof.
 Qed.
 
 Lemma problem_to_prv {p : peirce} :
-  forall E sigma, H10p_sem E sigma -> FAeq ⊢ (embed_problem E)[sigma >> num].
+  forall E sigma, H10p_sem E sigma -> FAeq ⊢ (embed_problem E).[sigma >> num].
 Proof.
   intros [a b] sigma HE. cbn -[FAeq].
   eapply transitivity; firstorder.

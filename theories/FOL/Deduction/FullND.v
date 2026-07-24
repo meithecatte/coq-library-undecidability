@@ -24,9 +24,9 @@ Section ND_def.
   | II {ff} {p} A phi psi : phi::A ⊢ psi -> A ⊢ phi → psi
   | IE {ff} {p} A phi psi : A ⊢ phi → psi -> A ⊢ phi -> A ⊢ psi
   | AllI {ff} {p} A phi : map (subst_form ↑) A ⊢ phi -> A ⊢ ∀ phi
-  | AllE {ff} {p} A t phi : A ⊢ ∀ phi -> A ⊢ phi[t..]
-  | ExI {ff} {p} A t phi : A ⊢ phi[t..] -> A ⊢ ∃ phi
-  | ExE {ff} {p} A phi psi : A ⊢ ∃ phi -> phi::(map (subst_form ↑) A) ⊢ psi[↑] -> A ⊢ psi
+  | AllE {ff} {p} A t phi : A ⊢ ∀ phi -> A ⊢ phi.[t..]
+  | ExI {ff} {p} A t phi : A ⊢ phi.[t..] -> A ⊢ ∃ phi
+  | ExE {ff} {p} A phi psi : A ⊢ ∃ phi -> phi::(map (subst_form ↑) A) ⊢ psi.[↑] -> A ⊢ psi
   | Exp {p} A phi : prv p A falsity -> prv p A phi
   | Ctx {ff} {p} A phi : phi el A -> A ⊢ phi
   | CI {ff} {p} A phi psi : A ⊢ phi -> A ⊢ psi -> A ⊢ phi ∧ psi

@@ -31,7 +31,7 @@ Close Scope FSTsem.
 Lemma FST_eset x :
   FSTeq ⊢ ¬ (x ∈ ∅).
 Proof.
-  change (FSTeq ⊢ (¬ ($0 ∈ ∅))[x..]).
+  change (FSTeq ⊢ (¬ ($0 ∈ ∅)).[x..]).
   apply AllE. apply Ctx. firstorder.
 Qed.
 
@@ -50,7 +50,7 @@ end.
 Lemma FST_refl' T x :
   FSTeq <<= T -> T ⊢ x ≡ x.
 Proof.
-  intros H. change (T ⊢ ($0 ≡ $0)[x..]).
+  intros H. change (T ⊢ ($0 ≡ $0).[x..]).
   apply AllE. apply Ctx. firstorder.
 Qed.
 
@@ -376,7 +376,7 @@ Proof.
 Qed.
 
 Lemma is_rep_subst s t x y sigma :
-  (is_rep (comb_rel s t) x y)[sigma] = is_rep (comb_rel s t) x`[sigma] y`[sigma].
+  (is_rep (comb_rel s t) x y).[sigma] = is_rep (comb_rel s t) x`[sigma] y`[sigma].
 Proof.
   unfold is_rep. cbn -[comb_rel]. subsimpl. repeat f_equal.
   - unfold comb_rel. cbn. rewrite !prep_string_subst. reflexivity.
@@ -384,7 +384,7 @@ Proof.
 Qed.
 
 Lemma combinations_subst B x y sigma :
-  (combinations B x y)[sigma] = combinations B x`[sigma] y`[sigma].
+  (combinations B x y).[sigma] = combinations B x`[sigma] y`[sigma].
 Proof.
   induction B as [|[s t] B IH] in sigma, x, y |- *.
   - cbn. reflexivity.

@@ -34,6 +34,7 @@ Section Tarski.
       }.
 
     Definition env := nat -> domain.
+    Bind Scope subst_scope with env.
 
     Context {I : interp}.
 

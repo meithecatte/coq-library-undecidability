@@ -28,7 +28,7 @@ Section PNFrules.
   Qed.
   
   Lemma up_equiv {b:falsity_flag}:
-    forall ρ ϕ x, sat ρ ϕ <-> sat (x.:ρ) ϕ[↑].
+    forall ρ ϕ x, sat ρ ϕ <-> sat (x.:ρ) ϕ.[↑].
   Proof.
     intros. split.
     - intros. apply sat_comp. eapply sat_ext; eauto.
@@ -36,7 +36,7 @@ Section PNFrules.
   Qed.
 
   Lemma PNF_allAnd {b:falsity_flag}:
-    forall ρ ϕ ψ, sat ρ ((∀ ϕ) ∧ ψ ↔ ∀ ϕ ∧ ψ[↑]).
+    forall ρ ϕ ψ, sat ρ ((∀ ϕ) ∧ ψ ↔ ∀ ϕ ∧ ψ.[↑]).
   Proof.
     split; cbn.
     - intros []. split; [auto | now apply up_equiv].
@@ -46,13 +46,13 @@ Section PNFrules.
   Qed.
 
   Lemma PNF_andAll {b:falsity_flag}:
-    forall ρ ϕ ψ, sat ρ (ϕ ∧ (∀ ψ) ↔ ∀ ϕ[↑] ∧ ψ).
+    forall ρ ϕ ψ, sat ρ (ϕ ∧ (∀ ψ) ↔ ∀ ϕ.[↑] ∧ ψ).
   Proof.
     intros ρ ϕ ψ. specialize (PNF_allAnd ρ ψ ϕ) as H. cbn in *. firstorder.
   Qed.
 
   Lemma PNF_all_Or1 {b:falsity_flag}:
-    forall ρ ϕ ψ, sat ρ ((∀ ϕ) ∨ ψ → ∀ ϕ ∨ ψ[↑]).
+    forall ρ ϕ ψ, sat ρ ((∀ ϕ) ∨ ψ → ∀ ϕ ∨ ψ.[↑]).
   Proof.
     cbn.
     intros ρ ϕ ψ [] d.
@@ -61,7 +61,7 @@ Section PNFrules.
   Qed.
 
   Lemma PNF_all_Or2 {b:falsity_flag}:
-    DN -> forall ρ ϕ ψ, sat ρ ((∀ ϕ ∨ ψ[↑]) → ((∀ ϕ) ∨ ψ)) .
+    DN -> forall ρ ϕ ψ, sat ρ ((∀ ϕ ∨ ψ.[↑]) → ((∀ ϕ) ∨ ψ)) .
   Proof.
     cbn. intros DN ρ ϕ ψ H. (* TODO vlt. de Morgan = wxm*)
       apply DN. intros nH. apply nH. left. intros d. specialize (H d) as [H | H].
@@ -70,19 +70,19 @@ Section PNFrules.
   Qed.
 
   Lemma PNF_allOr {b:falsity_flag}:
-    DN -> forall ρ ϕ ψ, sat ρ (((∀ ϕ) ∨ ψ) ↔ (∀ ϕ ∨ ψ[↑])).
+    DN -> forall ρ ϕ ψ, sat ρ (((∀ ϕ) ∨ ψ) ↔ (∀ ϕ ∨ ψ.[↑])).
   Proof.
     intros DN. split; [apply PNF_all_Or1|apply PNF_all_Or2, DN].
   Qed.
 
   Lemma PNF_orAll {b:falsity_flag}:
-    DN -> forall ρ ϕ ψ, sat ρ ((ϕ ∨ (∀ψ) ↔ (∀ ϕ[↑] ∨ ψ))).
+    DN -> forall ρ ϕ ψ, sat ρ ((ϕ ∨ (∀ψ) ↔ (∀ ϕ.[↑] ∨ ψ))).
   Proof.
     intros DN ρ ϕ ψ. specialize (PNF_allOr DN ρ ψ ϕ) as H. cbn in *. revert H. clear. firstorder.
   Qed.
 
   Lemma PNF_existsAnd {b:falsity_flag}:
-    forall ρ ϕ ψ, sat ρ (((∃ ϕ) ∧ ψ) ↔ (∃ ϕ ∧ ψ[↑])).
+    forall ρ ϕ ψ, sat ρ (((∃ ϕ) ∧ ψ) ↔ (∃ ϕ ∧ ψ.[↑])).
   Proof.
     split; cbn.
     - intros [[]]. eexists. split; [eauto | now apply up_equiv].
@@ -90,13 +90,13 @@ Section PNFrules.
   Qed.
 
   Lemma PNF_andExists {b: falsity_flag}:
-    forall ρ ϕ ψ, sat ρ ((ϕ ∧ ∃ ψ) ↔ (∃ ϕ[↑] ∧ ψ)).
+    forall ρ ϕ ψ, sat ρ ((ϕ ∧ ∃ ψ) ↔ (∃ ϕ.[↑] ∧ ψ)).
   Proof.
     intros ρ ϕ ψ. specialize (PNF_existsAnd ρ ψ ϕ) as H. cbn in *. revert H. clear. firstorder.
   Qed.
 
   Lemma PNF_existsOr {b:falsity_flag}:
-    forall ρ ϕ ψ, sat ρ ((∃ ϕ) ∨ ψ ↔ ∃ ϕ ∨ ψ[↑]).
+    forall ρ ϕ ψ, sat ρ ((∃ ϕ) ∨ ψ ↔ ∃ ϕ ∨ ψ.[↑]).
   Proof.
     split; cbn.
     - intros [[d H]|H].
@@ -108,13 +108,13 @@ Section PNFrules.
   Qed.
 
   Lemma PNF_orExists {b:falsity_flag}:
-    forall ρ ϕ ψ, sat ρ (ϕ ∨ (∃ ψ) ↔ ∃ ϕ[↑] ∨ ψ).
+    forall ρ ϕ ψ, sat ρ (ϕ ∨ (∃ ψ) ↔ ∃ ϕ.[↑] ∨ ψ).
   Proof.
     intros ρ ϕ ψ. specialize (PNF_existsOr ρ ψ ϕ) as H. cbn in *. revert H. clear. firstorder.
   Qed.
 
   Lemma PNF_allImpl1 {b: falsity_flag}:
-    DN -> forall ρ ϕ ψ, sat ρ (((∀ ϕ) → ψ) → (∃ ϕ → ψ[↑])).
+    DN -> forall ρ ϕ ψ, sat ρ (((∀ ϕ) → ψ) → (∃ ϕ → ψ.[↑])).
   Proof.
     cbn.
     intros DN ρ ϕ ψ A. apply DN. intros nE.
@@ -123,19 +123,19 @@ Section PNFrules.
   Qed.
 
   Lemma PNF_allImpl2 {b: falsity_flag}:
-    forall ρ ϕ ψ, sat ρ ((∃ ϕ → ψ[↑]) → ((∀ ϕ) → ψ)).
+    forall ρ ϕ ψ, sat ρ ((∃ ϕ → ψ.[↑]) → ((∀ ϕ) → ψ)).
   Proof.
     cbn. intros ? ? ? [] ?. eapply up_equiv. eauto.
   Qed.
 
   Lemma PNF_allImpl {b: falsity_flag}:
-    DN -> forall ρ ϕ ψ, sat ρ (((∀ ϕ) → ψ) ↔ (∃ ϕ → ψ[↑])).
+    DN -> forall ρ ϕ ψ, sat ρ (((∀ ϕ) → ψ) ↔ (∃ ϕ → ψ.[↑])).
   Proof.
     intros DN. split; [apply PNF_allImpl1, DN| apply PNF_allImpl2].
   Qed.
 
   Lemma PNF_existsImpl {b: falsity_flag}:
-    forall ρ ϕ ψ, sat ρ (((∃ ϕ) → ψ) ↔ (∀ ϕ → ψ[↑])).
+    forall ρ ϕ ψ, sat ρ (((∃ ϕ) → ψ) ↔ (∀ ϕ → ψ.[↑])).
   Proof.
     split; cbn.
     - intros. apply up_equiv. eauto.
@@ -143,7 +143,7 @@ Section PNFrules.
   Qed.
 
   Lemma PNF_implAll {b: falsity_flag}:
-    forall ρ ϕ ψ, sat ρ ((ϕ → ∀ ψ) ↔ (∀ ϕ[↑] → ψ)).
+    forall ρ ϕ ψ, sat ρ ((ϕ → ∀ ψ) ↔ (∀ ϕ.[↑] → ψ)).
   Proof.
     split; cbn.
     - intros ? ? ?%up_equiv. auto.
@@ -151,12 +151,12 @@ Section PNFrules.
   Qed.
 
   Lemma PNF_implExists {b: falsity_flag}:
-  IndependenceOfGeneralPremises -> forall ρ ϕ ψ, sat ρ ((ϕ → ∃ ψ) ↔ ∃ ϕ[↑] → ψ).
+  IndependenceOfGeneralPremises -> forall ρ ϕ ψ, sat ρ ((ϕ → ∃ ψ) ↔ ∃ ϕ.[↑] → ψ).
   Proof.
     intros IndependenceOfGeneralPremises.
     split; cbn. (* todo indepentence of premise *) (* markov **)
     - intros H.
-      assert (exists d : D, ((forall d, (d .: ρ) ⊨ ϕ[↑]) -> (d .: ρ) ⊨ ψ)) as [d H']. {
+      assert (exists d : D, ((forall d, (d .: ρ) ⊨ ϕ.[↑]) -> (d .: ρ) ⊨ ψ)) as [d H']. {
         apply (IndependenceOfGeneralPremises (ρ 42)).
         intros H'. apply H. specialize (H' (ρ 27)). apply sat_comp in H'.
           eapply sat_ext. 2: exact H'. reflexivity.
@@ -411,8 +411,8 @@ Section PrenexNormalForm.
     | atom P v => atom P v
     | bin op φ1 φ2 =>
         bin op
-          ((conv_form φ1)[shift (length (conv_list φ2))])
-          ((conv_form φ2)[shift_quant (length (conv_list φ2)) (length (conv_list φ1))])
+          ((conv_form φ1).[shift (length (conv_list φ2))])
+          ((conv_form φ2).[shift_quant (length (conv_list φ2)) (length (conv_list φ1))])
     | quant op φ => conv_form φ
     end.
 
@@ -422,7 +422,7 @@ Section PrenexNormalForm.
   (** prove result is in PNF ***)
 
   Lemma noQuant_ind_subst `{falsity_flag} : 
-    forall φ s, noQuant_ind φ -> noQuant_ind φ[s].
+    forall φ s, noQuant_ind φ -> noQuant_ind φ.[s].
   Proof.
     intros φ s. induction 1; cbn; now constructor.
   Qed.
@@ -460,7 +460,7 @@ Section PrenexNormalForm.
   Qed.
 
   Lemma shift_one_more {b: falsity_flag} φ n :
-    φ[shift (S n)] = φ[↑][shift n].
+    φ.[shift (S n)] = φ.[↑].[shift n].
   Proof.
     asimpl. apply subst_ext. intros m. unfold shift, funcomp.
     now rewrite iter_switch.
@@ -491,16 +491,16 @@ Section PrenexNormalForm.
   Qed.
 
   Lemma shift_quant_1 {b: falsity_flag} φ n m:
-    φ[shift_quant n 1][shift_quant n m] =
-    φ[shift_quant n (S m)].
+    φ.[shift_quant n 1].[shift_quant n m] =
+    φ.[shift_quant n (S m)].
   Proof.
     asimpl. apply subst_ext.
     intros p. unfold funcomp. apply shift_quant_add.
   Qed.
 
   Lemma quant_list_to_form_rename_free {b: falsity_flag} sigma qs φ:
-  quant_list_to_form qs φ [upN (length qs) sigma]
-  = (quant_list_to_form qs φ)[sigma].
+  quant_list_to_form qs φ .[upN (length qs) sigma]
+  = (quant_list_to_form qs φ).[sigma].
   Proof.
     induction qs as [|q qs IH] in sigma |-*.
     - now apply subst_ext.
@@ -508,7 +508,7 @@ Section PrenexNormalForm.
   Qed.
 
   Lemma quant_list_to_form_rename_free_up {b: falsity_flag} qs φ:
-    quant_list_to_form qs φ [shift_quant (length qs) 1] = (quant_list_to_form qs φ)[↑].
+    quant_list_to_form qs φ .[shift_quant (length qs) 1] = (quant_list_to_form qs φ).[↑].
   Proof.
     now erewrite <- (quant_list_to_form_rename_free).
   Qed.

@@ -46,7 +46,7 @@ Section ND_def.
   Hint Constructors prv : core.
 
   Theorem subst_Weak A phi xi :
-    A ⊢ phi -> [phi[xi] | phi ∈ A] ⊢ phi[xi].
+    A ⊢ phi -> [phi.[xi] | phi ∈ A] ⊢ phi.[xi].
   Proof.
     induction 1 in xi |-*; comp.
     1-7:eauto using in_map.
@@ -60,20 +60,20 @@ Section ND_def.
   Definition cycle_shift n x :=
     if Dec (n = x) then $0 else $(S x).
   Lemma cycle_shift_shift n phi :
-    bounded n phi -> phi[cycle_shift n] = phi[↑].
+    bounded n phi -> phi.[cycle_shift n] = phi.[↑].
   Proof.
     intros H. apply (bounded_subst H). intros k. unfold cycle_shift. destruct (Dec _); trivial; lia.
   Qed.
 
   Lemma cycle_shift_subject n phi :
-    bounded (S n) phi -> phi[$n..][cycle_shift n] = phi.
+    bounded (S n) phi -> phi.[$n..].[cycle_shift n] = phi.
   Proof.
     intros H. erewrite subst_comp, (bounded_subst H), subst_id; trivial.
     intros []; cbn; unfold cycle_shift; destruct (Dec _); trivial; lia.
   Qed.
 
   Lemma nameless_equiv_all' A phi n :
-    bounded_L n A -> bounded (S n) phi -> [f[↑] | f ∈ A] ⊢ phi <-> A ⊢ phi[$n..].
+    bounded_L n A -> bounded (S n) phi -> [f.[↑] | f ∈ A] ⊢ phi <-> A ⊢ phi.[$n..].
   Proof.
     intros H1 H2. split; intros H.
     - apply (subst_Weak ($n..)) in H. rewrite map_map in *.
@@ -84,7 +84,7 @@ Section ND_def.
   Qed.
 
   Lemma nameless_equiv_all A phi :
-    { t : nat | map (subst_form ↑) A ⊢ phi <-> A ⊢ phi[$t..] }.
+    { t : nat | map (subst_form ↑) A ⊢ phi <-> A ⊢ phi.[$t..] }.
   Proof.
     destruct (find_bounded_L (phi::A)) as [n H].
     exists n. apply nameless_equiv_all'.
@@ -93,7 +93,7 @@ Section ND_def.
   Qed.
 
   Lemma AllI_named (A : list form) (phi : form) :
-    (forall t, A ⊢ phi[t..]) -> A ⊢ ∀phi.
+    (forall t, A ⊢ phi.[t..]) -> A ⊢ ∀phi.
   Proof.
     intros H. apply AllI. 
     destruct (nameless_equiv_all A phi) as [t Ht].
@@ -130,7 +130,7 @@ Section ND_def.
   Qed.
 
   Lemma subst_forall_prv phi {N Gamma} :
-    Gamma ⊢ (forall_times N phi) -> bounded N phi -> forall sigma, Gamma ⊢ phi[sigma].
+    Gamma ⊢ (forall_times N phi) -> bounded N phi -> forall sigma, Gamma ⊢ phi.[sigma].
   Proof.
     induction N in phi |-*; intros ?? sigma; cbn in *.
     - change sigma with (iter up 0 sigma).
@@ -194,7 +194,7 @@ Lemma prv_ind_full {Σ_funcs : funcs_signature} {Σ_preds : preds_signature} :
     (forall (p : peirce) (A : list form) (phi : form),
         (map (subst_form ↑) A) ⊢ phi -> P p (map (subst_form ↑) A) phi -> P p A (∀ phi)) ->
     (forall (p : peirce) (A : list form) (t : term) (phi : form),
-        A ⊢ (∀ phi) -> P p A (∀ phi) -> P p A (phi[t..])) ->
+        A ⊢ (∀ phi) -> P p A (∀ phi) -> P p A (phi.[t..])) ->
     (forall (p : peirce) (A : list form) (phi : form), A ⊢ ⊥ -> P p A ⊥ -> P p A phi) ->
     (forall (p : peirce) (A : list form) (phi : form), phi el A -> P p A phi) ->
     (forall (A : list form) (phi psi : form), P class A (((phi → psi) → phi) → phi)) ->
@@ -276,7 +276,7 @@ Section Enumerability.
     (* II *)   concat ([ [ phi → psi | psi ∈ L_ded (phi :: A) n ] | phi ∈ L_T form n ]) ++
     (* IE *)   [ psi | (phi, psi) ∈ (L_ded A n × L_T form n) , (phi → psi el L_ded A n) ] ++
     (* AllI *) [ ∀ phi | phi ∈ L_ded (map (subst_form ↑) A) n ] ++
-    (* AllE *) [ phi[t..] | (phi, t) ∈ (L_T form n × L_T term n), (∀ phi) el L_ded A n ] ++
+    (* AllE *) [ phi.[t..] | (phi, t) ∈ (L_T form n × L_T term n), (∀ phi) el L_ded A n ] ++
     (* Exp *)  (match b with falsity_on => fun A =>
                 [ phi | phi ∈ L_T form n, ⊥ el @L_ded _ falsity_on A n ]
                 | _ => fun _ => nil end A) ++
@@ -527,7 +527,7 @@ Section FlagsTransport.
       intros a. rewrite <- ! subst_falsity_id.
       rewrite subst_falsity_comm. now cbn.
     - rewrite <- subst_falsity_id.
-      change (⊥) with (⊥[t..]). rewrite <- subst_falsity_comm.
+      change (⊥) with (⊥.[t..]). rewrite <- subst_falsity_comm.
       apply AllE. rewrite subst_falsity_id. now apply IHprv.
     - apply Exp. apply IHprv.
     - apply Ctx. now apply in_map.
@@ -589,7 +589,7 @@ Section NegativeTranslation.
     induction A as [|psi A IH]; cbn; congruence.
   Qed.
 
-  Lemma nt_subst {ff:falsity_flag} phi σ : negative_translation (phi[σ]) = (negative_translation phi)[σ].
+  Lemma nt_subst {ff:falsity_flag} phi σ : negative_translation (phi.[σ]) = (negative_translation phi).[σ].
   Proof.
     induction phi as [| |?[]|?[]] in σ|-*; try easy.
     - cbn. now rewrite IHphi1, IHphi2.
@@ -611,7 +611,7 @@ Section NegativeTranslation.
   - apply II. apply AllI. cbn. eapply IE. 1: apply IHphi.
     apply II. eapply IE. 1: apply Ctx; right; now left.
     apply II. eapply IE. 1: apply Ctx; right; now left.
-    assert ((negative_translation phi)[up ↑][$0..] = negative_translation phi) as <- by now asimpl.
+    assert ((negative_translation phi).[up ↑].[$0..] = negative_translation phi) as <- by now asimpl.
     apply AllE. apply Ctx; left; now asimpl.
   Qed.
 

@@ -57,7 +57,7 @@ Section Model.
   Qed.
 
   Lemma embed_subst (sigma : nat -> term') (phi : form') :
-    embed phi[sigma] = (embed phi)[sigma >> embed_t].
+    embed phi.[sigma] = (embed phi).[sigma >> embed_t].
   Proof.
     induction phi in sigma |- *; cbn; trivial.
     - f_equal. erewrite !Vector.map_map, Vector.map_ext. reflexivity. apply embed_subst_t.
@@ -67,19 +67,19 @@ Section Model.
   Qed.
 
   Lemma embed_sshift n (phi : form') :
-    embed phi[sshift n] = (embed phi)[sshift n].
+    embed phi.[sshift n] = (embed phi).[sshift n].
   Proof.
     rewrite embed_subst. apply subst_ext. now intros [].
   Qed.
 
   Lemma sat_sshift1 (rho : nat -> V) x y (phi : form) :
-    (y .: x .: rho) ⊨ phi[sshift 1] <-> (y .: rho) ⊨ phi.
+    (y .: x .: rho) ⊨ phi.[sshift 1] <-> (y .: rho) ⊨ phi.
   Proof.
     erewrite sat_comp, sat_ext. reflexivity. now intros [].
   Qed.
 
   Lemma sat_sshift2 (rho : nat -> V) x y z (phi : form) :
-    (z .: y .: x .: rho) ⊨ phi[sshift 2] <-> (z .: rho) ⊨ phi.
+    (z .: y .: x .: rho) ⊨ phi.[sshift 2] <-> (z .: rho) ⊨ phi.
   Proof.
     erewrite sat_comp, sat_ext. reflexivity. now intros [].
   Qed.

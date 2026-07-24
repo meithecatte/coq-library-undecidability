@@ -54,7 +54,7 @@ Section Bounded.
   Qed.
 
   Lemma bounded_subst {ff : falsity_flag} {n phi sigma tau} :
-    bounded n phi -> (forall k, n > k -> sigma k = tau k) -> phi[sigma] = phi[tau].
+    bounded n phi -> (forall k, n > k -> sigma k = tau k) -> phi.[sigma] = phi.[tau].
   Proof.
     induction 1 in sigma, tau |- *; cbn; intros HN; trivial.
     - f_equal. apply Vector.map_ext_in. intros t Ht.
@@ -72,7 +72,7 @@ Section Bounded.
     2: eassumption. lia.
   Qed.
 
-  Lemma bounded_0_subst {ff : falsity_flag} φ ρ : bounded 0 φ -> φ[ρ] = φ.
+  Lemma bounded_0_subst {ff : falsity_flag} φ ρ : bounded 0 φ -> φ.[ρ] = φ.
   Proof.
     intros H. setoid_rewrite <-subst_var at 3. eapply bounded_subst.
     - eassumption.
@@ -189,7 +189,7 @@ Section Bounded.
   Qed.
 
   Lemma subst_bounded {ff : falsity_flag} k phi sigma :
-    bounded k phi -> phi[iter up k sigma] = phi.
+    bounded k phi -> phi.[iter up k sigma] = phi.
   Proof.
     induction 1 in sigma |-*; cbn.
     - f_equal.
@@ -204,7 +204,7 @@ Section Bounded.
   Qed.
 
   Lemma subst_closed {ff : falsity_flag} phi sigma :
-    closed phi -> phi[sigma] = phi.
+    closed phi -> phi.[sigma] = phi.
   Proof.
     intros Hn.
     erewrite <- (@subst_id _ _ _ _ phi var) at 2. 2:easy.
@@ -305,7 +305,7 @@ Section Bounded.
   Qed.
 
   Lemma subst_bounded_max {ff : falsity_flag} n m phi sigma : 
-    (forall i, i < n -> bounded_t m (sigma i)) -> bounded n phi -> bounded m (phi[sigma]).
+    (forall i, i < n -> bounded_t m (sigma i)) -> bounded n phi -> bounded m (phi.[sigma]).
   Proof. intros Hi.
     induction 1 as [ff n P v H| bo ff n phi psi H1 IH1 H2 IH2| qo ff n phi H1 IH1| n] in Hi,sigma,m|-*; cbn; econstructor.
     - intros t [x [Hx <-]]%vector_in_map. eapply subst_bounded_max_t. 1: exact Hi. now apply H.

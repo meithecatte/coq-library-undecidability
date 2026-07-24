@@ -217,7 +217,7 @@ Proof.
 Qed.
 
 Lemma ZF_inductive_embed { p : peirce } t :
-  ZFeq' ⊢ inductive t ↔ (embed (is_inductive $0))[t..].
+  ZFeq' ⊢ inductive t ↔ (embed (is_inductive $0)).[t..].
 Proof.
   cbn. apply CI; apply II; apply CI.
   - apply (ExI ∅). cbn. subsimpl. apply CI; try apply (Weak ZF_eset); auto.

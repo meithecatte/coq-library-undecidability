@@ -95,17 +95,17 @@ Section comparisons.
   Definition PAle x y := ∃ y`[↑] == (x`[↑] ⊕ $0).
   Definition PAle' x y := ∃ y`[↑] == ($0 ⊕ x`[↑]).
 
-  Lemma PAlt_subst x y ρ : (PAlt x y)[ρ] = PAlt (x`[ρ]) (y`[ρ]).
+  Lemma PAlt_subst x y ρ : (PAlt x y).[ρ] = PAlt (x`[ρ]) (y`[ρ]).
   Proof.
     unfold PAlt. cbn. now asimpl.
   Qed.
   
-  Lemma PAle_subst x y ρ : (PAle x y)[ρ] = PAle (x`[ρ]) (y`[ρ]).
+  Lemma PAle_subst x y ρ : (PAle x y).[ρ] = PAle (x`[ρ]) (y`[ρ]).
   Proof.
     unfold PAle. cbn. now asimpl.
   Qed.
 
-  Lemma PAle'_subst x y ρ : (PAle' x y)[ρ] = PAle' (x`[ρ]) (y`[ρ]).
+  Lemma PAle'_subst x y ρ : (PAle' x y).[ρ] = PAle' (x`[ρ]) (y`[ρ]).
   Proof.
     unfold PAle'. cbn. now asimpl.
   Qed.
