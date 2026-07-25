@@ -89,30 +89,64 @@ Section ProblemsUndec.
   Context {C : FOL_class}.
   Hypothesis Hrc : FOL_reduction_class C.
 
+  Definition redfunc (x : rc_X Hrc) := exist _ (rc_formula x) (rc_form_in_C x).
+
+  Lemma prob_dsatis x : ~ rc_problem Hrc x -> FOL_class_dec_satis C (redfunc x).
+  Proof.
+    intros Hx. unfold FOL_class_satis, satis, redfunc; simpl.
+    destruct (rc_inh x) as [a].
+    exists (rc_carrier x), (rc_interp x), (fun _ => a).
+    split.
+    + apply rc_interp_dec.
+    + now apply rc_sat.
+  Qed.
+
+  Lemma satis_prob x : FOL_class_satis C (redfunc x) -> ~ rc_problem Hrc x.
+  Proof.
+    intros (D & I & rho & Hsat).
+    apply (rc_sound Hsat).
+  Qed.
+
+  Lemma dsatis_satis phi : FOL_class_dec_satis C phi -> FOL_class_satis C phi.
+  Proof.
+    - intros (D & I & rho & Hdec & Hsat).
+      now exists D, I, rho.
+  Qed.
+
   Lemma satis_red : complement (rc_problem Hrc) ⪯ FOL_class_satis C.
   Proof.
-    exists (fun x => exist _ (rc_formula x) (rc_form_in_C x)).
-    split; unfold FOL_class_satis; simpl.
-    - intros Hx. unfold satis.
-      destruct (rc_inh x) as [a].
-      exists (rc_carrier x), (rc_interp x), (fun _ => a).
-      apply rc_sat; assumption.
-    - intros Hsat. destruct Hsat as (D & I & rho & Hsat).
+    exists redfunc.
+    split.
+    - intros H.
+      now apply dsatis_satis, prob_dsatis.
+    - intros (D & I & rho & Hsat).
       apply (rc_sound Hsat).
   Qed.
 
-  Lemma dec_satis_red : complement (rc_problem Hrc) ⪯ FOL_class_dec_satis C.
+
+  Lemma prob_valid x : ~ ~ rc_problem Hrc x -> FOL_class_valid C (redfunc x).
   Proof.
-    exists (fun x => exist _ (rc_formula x) (rc_form_in_C x)).
-    split; unfold FOL_class_dec_satis; simpl.
-    - intros Hx. unfold dec_satis.
-      destruct (rc_inh x) as [a].
-      exists (rc_carrier x), (rc_interp x), (fun _ => a).
-      split.
-      + apply rc_interp_dec.
-      + now apply rc_sat.
-    - intros Hsat. destruct Hsat as (D & I & rho & Hdec & Hsat).
-      apply (rc_sound Hsat).
+    intros Hnsat D I rho Hsat. cbn.
+    apply Hnsat, satis_prob.
+    now exists D, I, rho.
+  Qed.
+
+  Lemma dvalid_prob x : FOL_class_dec_valid C (redfunc x) -> ~ ~ rc_problem Hrc x.
+  Proof.
+    intros Hdvalid Hsat%prob_dsatis.
+    destruct Hsat as (D & I & rho & Hdec & Hsat).
+    exact (Hdvalid D I rho Hdec Hsat).
+  Qed.
+
+  Lemma nprob_ndvalid x : ~ rc_problem Hrc x -> ~ FOL_class_dec_valid C (redfunc x).
+  Proof.
+    now intros Hnprob Hprob%dvalid_prob.
+  Qed.
+
+  Lemma nvalid_nprob x : ~ FOL_class_valid C (redfunc x) -> ~ rc_problem Hrc x.
+  Proof.
+    intros Hnvalid Hprob.
+    now apply Hnvalid, prob_valid.
   Qed.
 
 
@@ -122,36 +156,25 @@ Section ProblemsUndec.
     - intros Hnsat D I rho Hsat. cbn.
       apply Hnsat.
       now exists D, I, rho.
-    - intros Hvalid Hsat.
-      destruct Hsat as (D & I & rho & Hsat).
+    - intros Hvalid (D & I & rho & Hsat).
       exact (Hvalid D I rho Hsat).
   Qed.
 
-  Lemma dec_valid_red : complement (FOL_class_dec_satis C) ⪯ FOL_class_dec_valid C.
-  Proof using Hrc.
-    exists id; split.
-    - intros Hnsat D I rho Hdec Hsat. cbn.
-      apply Hnsat.
-      now exists D, I, rho.
-    - intros Hvalid Hsat.
-      destruct Hsat as (D & I & rho & Hsat).
-      now refine (Hvalid D I rho _ _).
-  Qed.
 
-
-  Lemma prv_red : complement (FOL_class_dec_valid C) ⪯ complement (FOL_class_prv C).
-  Proof using Hrc.
-    exists id; intros phi; split.
-    - intros Hnotvalid Hprv%Fr_cl_to_min.
-      apply Hnotvalid.
+  Lemma prv_red : complement (rc_problem Hrc) ⪯ complement (FOL_class_prv C).
+  Proof.
+    exists redfunc; split.
+    - intros Hnvalid%nprob_ndvalid Hprv%Fr_cl_to_min.
+      apply Hnvalid.
       intros D I rho Hdec.
       apply soundness' in Hprv.
       apply PNF_conj_neg_Fr_sat.
       + exact Hdec.
       + apply (rc_isPNF Hrc).
-        now destruct phi.
+        apply proj2_sig.
       + apply Hprv.
-    - intros Hnotprv Hvalid.
+    - intros Hnprv. apply nvalid_nprob. intros Hvalid.
+      (* valid Ko (redfunc x)? *)
       (* TODO: completeness should hold constructively even for Full FOL *)
       admit.
   Admitted.
@@ -175,13 +198,7 @@ Section ProblemsUndec.
 
   Theorem FOL_class_prv_compl_undec : undecidable (complement (FOL_class_prv C)).
   Proof using Hrc.
-    eapply undecidability_from_reducibility.
-    { do 2 eapply undecidability_to_complement.
-      apply (rc_problem_undec Hrc). }
-    eapply reduces_transitive.
-    { do 2 apply reduces_complement. apply dec_satis_red. }
-    eapply reduces_transitive.
-    { apply reduces_complement. apply dec_valid_red. }
+    eapply (undecidability_from_reducibility (rc_problem_undec Hrc)).
     apply prv_red.
   Qed.
 

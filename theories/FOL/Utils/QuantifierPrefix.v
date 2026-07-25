@@ -1,7 +1,7 @@
 From Undecidability.FOL Require Import FullSyntax PrenexNormalForm.
 From Stdlib Require Import ssrbool.
 
-Abbreviation Quant := full_logic_quant.
+#[local] Abbreviation Quant := full_logic_quant.
 
 Import List ListNotations.
 
@@ -54,6 +54,8 @@ Section QuantifierPrefix.
   Definition GPrefixClass {ff : falsity_flag} (pat : gpat) (phi : form) :=
     closed phi /\ PNF_conj phi /\ matches_gpat (map prefix (unconj phi)) pat.
 End QuantifierPrefix.
+
+#[export] Hint Constructors matches_qpat : core.
 
 Declare Custom Entry quant.
 Notation "'All'" := All (in custom quant at level 0).

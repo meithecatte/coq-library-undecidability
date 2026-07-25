@@ -2,14 +2,14 @@ From Stdlib Require Import Vector.
 From Undecidability.FOL Require Import Syntax.Facts.
 From Undecidability.FOL.Semantics.Tarski Require Import FullFacts FragmentFacts.
 From Undecidability.FOL.Semantics.FiniteTarski Require Import Full Fragment.
-From Undecidability.Shared Require Import Dec.
+From Undecidability.Shared Require Import Dec ListAutomation.
 From Undecidability.Shared.Libs.PSL Require Import Numbers.
 From Stdlib Require Import Arith Lia List.
 From Undecidability.Shared.Libs.DLW.Wf Require Import wf_finite.
 From Undecidability.Synthetic Require Import Definitions.
+From Undecidability.FOL.Deduction Require Import FullNDFacts FragmentNDFacts.
 
 Set Default Goal Selector "!".
-Set Mangle Names.
 Inductive syms_func : Type := .
 (* Double negation translation. Valid for e.g. FSAT *)
 Section translation. 
@@ -224,7 +224,41 @@ Section translation.
   Definition translate_form_closed {ff:falsity_flag} (f:Full.cform) : (Fragment.cform (ff:=falsity_on)) := match f with
   exist _ phi Hclosed => exist _ (translate_form phi) (ltac:(apply translate_form_bounded; apply Hclosed)) end.
 
+  Notation "A ⊢I phi" := (@prv _ _ falsity_on intu A phi).
+  Notation "A 'f⊢' phi" := (@FullND.prv _ _ _ _ A phi) (at level 20).
+  Notation "A 'f⊢C' phi" := (@FullND.prv _ _ _ class A phi) (at level 20).
 
+  (*
+  Import ListAutomationHints.
+  Lemma conj_to_impl_chain_prv (f : falsity_flag) (p : peirce) (phi : (@form _ _ full_operators f)) :
+    (forall A wform, (translate_form phi :: A) ⊢I wform <-> A ⊢I conj_to_impl_chain phi wform).
+  Proof.
+    induction phi as [|p' v|f [| |] l IHl r IHr|f [|] s IHs]; simpl; intros A wform.
+    - split; apply imps.
+    - split; apply imps.
+    - split.
+      + rewrite <- IHl, <- IHr.
+        intros H; apply (prv_cut H); clear H.
+        intros psi [<-|].
+        * enough (H : (translate_form r :: translate_form l :: (conj_to_impl_chain l (conj_to_impl_chain r ⊥) :: A)) ⊢I ⊥).
+          { apply II. eapply prv_cut. { exact H. }
+            intros psi [<-|[<-|[<-|]]]; apply Ctx; auto. }
+          now apply IHr, IHl, Ctx.
+        * apply Ctx; auto.
+      + intros H.
+        apply Exp.
+        eapply IE. { apply Ctx. now left. }
+
+      intros H. apply IHl, IHr.
+      admit.
+    - 
+  Lemma provable (f:falsity_flag) (p : peirce) (phi : (@form _ _ full_operators f)) : 
+    (forall A, A f⊢ phi -> map translate_form A ⊢I translate_form phi) /\
+  Proof.
+    induction 1.
+    - simpl in *.
+
+  Check _ ⊢C _.
+    Check _ f⊢ _.
+   *)
 End translation.
-
-

@@ -370,6 +370,24 @@ Section Bounded.
 
 End Bounded.
 
+Section FullBounded.
+  Context {Σ_funcs : funcs_signature}.
+  Context {Σ_preds : preds_signature}.
+  Import FullSyntax.
+
+  Lemma bounded_bigconj `{falsity_flag} n A phi :
+    bounded n phi -> (forall psi, psi el A -> bounded n psi) ->
+    bounded n (bigconj phi A).
+  Proof.
+    revert phi; induction A as [| psi A IHA].
+    - auto.
+    - intros phi Hphi HA.
+      simpl. apply IHA; [| firstorder].
+      apply bounded_bin; firstorder.
+  Qed.
+End FullBounded.
+
+
 #[global] Arguments subst_bounded {_} {_} {_} {_} k phi sigma.
 
 Lemma vector_not_in_nil (X:Type) (x:X) (v : Vector.t X 0) : In x v -> False.
@@ -381,7 +399,8 @@ Ltac solve_bounds := let rec IH := match goal with
   |- bounded ?n ?H   => first [apply bounded_falsity; fail
                               |apply bounded_bin; [IH|IH]
                               |apply bounded_quant; [IH]
-                              |apply bounded_atom; intros ?; IHvec]
+                              |apply bounded_atom; intros ?; IHvec
+                              |apply bounded_bigconj; [IH|intros ? ?; invert_list_in; IH]]
 | |- bounded_t ?n ?T => first [apply bounded_var; lia
                               |apply bouded_func; intros ?; IHvec]
 | |- _ => idtac end

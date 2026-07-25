@@ -591,6 +591,18 @@ Section PrenexNormalForm.
       1: { simpl in H. apply Forall_app in H. destruct H as [H1 H2]. auto. }
       all: simpl in H; inversion H; subst; auto using PNF_ind_unconj.
   Qed.
+
+  Lemma noQuant_bigconj `{ff : falsity_flag} (phi : form) A :
+    noQuant_ind phi -> (forall psi, In psi A -> noQuant_ind psi) ->
+    noQuant_ind (bigconj phi A).
+  Proof.
+    clear i D.
+    revert phi; induction A as [| psi A IHA].
+    - auto.
+    - intros phi Hphi HA.
+      simpl. apply IHA; [| firstorder].
+      apply nQ_bin; firstorder.
+  Qed.
 End PrenexNormalForm.
 
 Arguments noQuant_ind {_} {_} {_}.

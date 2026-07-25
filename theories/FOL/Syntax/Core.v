@@ -184,7 +184,6 @@ Notation "f >> g" := (funcomp g f) (at level 50) : subst_scope.
 Notation "s '..'" := (scons s var) (at level 1, format "s ..") : subst_scope.
 Notation "↑" := (S >> var) : subst_scope.
 
-
 (* Full syntax *)
 
 Module FullSyntax.

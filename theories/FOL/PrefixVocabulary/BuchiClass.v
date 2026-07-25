@@ -9,10 +9,10 @@
   infinite in only one direction, and the undecidability of their halting
   problem from the all-0 tape.
 *)
-From Undecidability.FOL Require Import FullSyntax ReductionClass QuantifierPrefix.
-From Undecidability.MinskyMachines Require Import MM2 MM2_facts.
-From Undecidability.Shared Require Import Vectors.
 From Stdlib Require Import List Lia ssreflect ssrfun ssrbool PeanoNat.
+From Undecidability.Shared Require Import Vectors ListAutomation.
+From Undecidability.MinskyMachines Require Import MM2 MM2_facts.
+From Undecidability.FOL Require Import FullSyntax ReductionClass QuantifierPrefix PrenexNormalForm.
 
 (* A(x, y) = Counter A has value y at time x. *)
 (* B(x, y) = Counter B has value y at time x. *)
@@ -42,7 +42,7 @@ Instance sig_pred : preds_signature :=
 Instance sig_empty : funcs_signature :=
   {| syms := False; ar_syms := False_rect nat |}.
 
-(*
+(* XXX: is this comment still accurate?
   The reduction proceeds in two steps. First, we define formulas
   F(x, x', y) and G(x, x' y) such that ∀x y. F(x, x+1, 0) ∧ G(x, x+1, y)
   is satisfiable on the natural numbers iff the Minsky machine doesn't halt.
@@ -139,17 +139,33 @@ Section Reduction.
   Proof.
     have bounded_Q k i t : bounded_t k t -> bounded k (Q i t).
       by rw /Q; case (_ && _) => h; solve_bounds.
-    have bounded_enc_instr i inst : bounded 3 (enc_instr (i,inst)).
-      by case: inst => [||j|j] /=; solve_bounds; apply: bounded_Q; solve_bounds.
-  Admitted.
+    have bounded_enc_instr x : bounded 3 (enc_instr x).
+      by case: x => i [||j|j] /=; solve_bounds; apply: bounded_Q; solve_bounds.
+    rw /closed /F /G /Ginstrs; solve_bounds.
+      apply: bounded_Q. solve_bounds.
+    apply: bounded_enc_instr.
+  Qed.
 
-  Hint Constructors matches_qpat : core.
+  Lemma F_PNF : PNF_conj F.
+  Proof.
+    apply: Pconj_conj; apply: Pconj_one; apply/PNF_agree => //=.
+    have noQuant_Q i t : noQuant_bool (Q i t) = true.
+      by rw /Q; case (_ && _).
+    rw noQuant_Q /=.
+    apply/noQuant_agree; apply: noQuant_bigconj => [| psi Hpsi].
+      by apply/noQuant_agree.
+    have noQuant_enc_instr x : noQuant_ind (enc_instr x).
+      by case: x => i [||j|j] /=; apply/noQuant_agree; rewrite /= !noQuant_Q.
+    rw /Ginstrs in Hpsi.
+    by invert_list_in.
+  Qed.
+
   Lemma F_qpat : GPrefixClass ([gprefix ∃ ∧ ∀∃∀]) F.
   Proof.
     split; first exact: F_closed.
-    split; first admit.
+    split; first exact: F_PNF.
     rw /=; auto 6.
-  Admitted.
+  Qed.
 
   Import MM2Notations.
   Section NatModel.
