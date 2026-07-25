@@ -193,7 +193,6 @@ Section translation.
 
   #[local] Hint Constructors bounded : core.
 
-  (* This proof is a lot of copy-paste. It should be automated *)
   Lemma translate_bounded_full (f:falsity_flag)(phi : (@form _ _ full_operators f)) n : 
      ((bounded_comp n (translate_form phi) <-> bounded_comp n phi)
   /\ (bounded_comp n (translate_negated phi) <-> bounded_comp n phi))
@@ -202,70 +201,16 @@ Section translation.
   Proof.
   induction phi as [|p v|f [| |] l IH r IH2|f [|] s IH] in n|-*; split; split; split; cbn; 
     cbn; intros H; try tauto; eauto; try easy.
-  - destruct H as [HL _]. apply IH in HL. destruct HL as [HL HR]. apply IH2 in HR.
-    tauto.
-  - split; try easy. destruct (IH n) as [[_ _] [IH' _]]. apply IH'. split; try tauto.
-    destruct (IH2 n) as [[_ _] [IH2' _]]. apply IH2'. split; now try tauto.
-  - apply IH in H. destruct H as [HL HR]. apply IH2 in HR.
-    tauto.
-  - destruct (IH n) as [[_ _] [IH' _]]. apply IH'. split; try tauto.
-    destruct (IH2 n) as [[_ _] [IH2' _]]. apply IH2'. split; now try tauto.
-  - apply IH in H. destruct H as [HL HR]. apply IH2 in HR.
-    tauto.
-  - destruct (IH n) as [[_ _] [IH' _]]. apply IH'. split; try tauto.
-    destruct (IH2 n) as [[_ _] [IH2' _]]. apply IH2'. split; now try tauto.
-  - destruct H as [HL HH]. apply IH in HL. destruct HL as [HL HR]. apply IH2 in HR.
-    tauto.
-  - split; try easy. destruct (IH n) as [[_ _] [IH' _]]. apply IH'. split; try tauto.
-    destruct (IH2 n) as [[_ _] [IH2' _]]. apply IH2'. split; now try tauto.
-  - apply IH in H. destruct H as [HL HR]. apply IH2 in HR.
-    tauto.
-  - destruct (IH n) as [[_ _] [_ IH']]. apply IH'. split; try tauto.
-    destruct (IH2 n) as [[_ _] [_ IH2']]. apply IH2'. split; now try tauto.
-  - destruct H as [H _]. apply IH in H. destruct H as [HL HR]. apply IH2 in HR.
-    tauto.
-  - split; try easy. destruct (IH n) as [[_ _] [_ IH']]. apply IH'. split; try tauto.
-    destruct (IH2 n) as [[_ _] [_ IH2']]. apply IH2'. split; now try tauto.
-  - destruct H as [H HH]. apply IH in H. destruct H as [HL HR]. apply IH2 in HR.
-    tauto.
-  - split; try easy. destruct (IH n) as [[_ _] [_ IH']]. apply IH'. split; try tauto.
-    destruct (IH2 n) as [[_ _] [_ IH2']]. apply IH2'. split; now try tauto.
-  - apply IH in H. destruct H as [HL HR]. apply IH2 in HR.
-    tauto.
-  - destruct (IH n) as [[_ _] [_ IH']]. apply IH'. split; try tauto.
-    destruct (IH2 n) as [[_ _] [_ IH2']]. apply IH2'. split; now try tauto.
-  - apply IH in H. destruct H as [HL HR]. apply IH2 in HR.
-    tauto.
-  - destruct (IH n) as [[_ _] [IH' _]]. apply IH'. split; try tauto.
-    destruct (IH2 n) as [[IH2' _] [_ _]]. apply IH2'. tauto.
-  - destruct H as [H HH]. apply IH in H. destruct H as [HL HR]. apply IH2 in HR.
-    tauto.
-  - split; try easy. destruct (IH n) as [[_ _] [IH' _]]. apply IH'. split; try tauto.
-    destruct (IH2 n) as [[IH2' _] [_ _]]. apply IH2'. tauto.
-  - destruct H as [H HH]. apply IH in H. destruct H as [HL HR]. apply IH2 in HR.
-    tauto.
-  - split; try easy. destruct (IH n) as [[_ _] [IH' _]]. apply IH'. split; try tauto.
-    destruct (IH2 n) as [[IH2' _] [_ _]]. apply IH2'. tauto.
-  - destruct H as [[H _] HH]. apply IH in H. destruct H as [HL HR]. apply IH2 in HR.
-    tauto.
-  - do 2 (split; try easy). destruct (IH n) as [[_ _] [IH' _]]. apply IH'. split; try tauto.
-    destruct (IH2 n) as [[IH2' _] [_ _]]. apply IH2'. tauto.
-  - destruct (IH (S n)) as [[IH' _] _]. apply IH'. easy.
-  - destruct (IH (S n)) as [[IH' _] _]. apply IH'. easy.
-  - destruct (IH (S n)) as [[IH' _] _]. apply IH'. easy.
-  - split; try tauto. destruct (IH (S n)) as [[IH' _] _]. apply IH'. easy.
-  - split; try tauto. destruct (IH (S n)) as [[IH' _] _]. apply IH'. easy.
-  - split; try tauto. destruct (IH (S n)) as [[IH' _] _]. apply IH'. easy.
-  - split; try tauto. destruct (IH (S n)) as [[IH' _] _]. apply IH'. easy.
-  - do 2 (split; try tauto). destruct (IH (S n)) as [[IH' _] _]. apply IH'. easy.
-  - destruct (IH (S n)) as [[_ IH'] _]. apply IH'. easy.
-  - split; try tauto. destruct (IH (S n)) as [[_ IH'] _]. apply IH'. easy.
-  - destruct (IH (S n)) as [[_ IH'] _]. apply IH'. easy.
-  - destruct (IH (S n)) as [[_ IH'] _]. apply IH'. easy.
-  - split; try tauto. destruct (IH (S n)) as [[_ IH'] _]. apply IH'. easy.
-  - do 2 (split; try tauto). destruct (IH (S n)) as [[_ IH'] _]. apply IH'. easy.
-  - split; try tauto. destruct (IH (S n)) as [[_ IH'] _]. apply IH'. easy.
-  - split; try tauto. destruct (IH (S n)) as [[_ IH'] _]. apply IH'. easy.
+    all: repeat match goal with
+    | H: forall k : nat, _ /\ _ |- _ =>
+      pose proof (fun n => proj1 (H n));
+      pose proof (fun n => proj2 (H n));
+      clear H
+    | H: _ /\ _ |- _ => destruct H
+    | |- _ /\ _ => split
+    | H : context [bounded_comp _ _ <-> _] |- _ =>
+      rewrite H in *
+    end; easy.
   Qed.
 
   Context {sig_funcs_dec : eq_dec Σ_funcs}.
